@@ -100,7 +100,7 @@ const Page = () => {
             </div>
             <div className="flex-grow bg-green-500 m-2 rounded-md font-bold text-2xl pt-6 text-center flex flex-col items-center">
               <div>Soil Humidity Sensor</div>
-              <div className="flex gap-10">
+              <div className="flex gap-40">
                 {Object.keys(soilMoisture).map((sensor, index) => (
                   <div key={index} className="w-full mt-10 p-2 rounded-md">
                     {sensor.replace("sensor_", "Sensor ")}
