@@ -18,6 +18,7 @@ const Page = () => {
   const [todayHistory, setTodayHistory] = useState(null);
   const [expandedDate, setExpandedDate] = useState(null);
   const [expandedToday, setExpandedToday] = useState(false); // State for Today History collapse
+  const [time, setTime] = useState(new Date().toLocaleTimeString());
 
   // Function to get today's date in YYYY-MM-DD format
   const getTodayDate = () => {
@@ -57,6 +58,13 @@ const Page = () => {
     });
   }, []);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTime(new Date().toLocaleTimeString());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   // Toggle the date collapse
   const toggleDate = (date) => {
     setExpandedDate(expandedDate === date ? null : date);
@@ -89,16 +97,16 @@ const Page = () => {
         <div className="flex-grow flex flex-col pl-2 pt-2 pr-2">
           <div className="flex">
             <div className="flex flex-col">
-              <div className="w-[250px] h-32 bg-blue-500 m-2 rounded-md font-bold text-2xl pt-4 text-center">
-                Temperature:
+              <div className="w-[250px] h-32 bg-gray-700 m-2 rounded-md font-bold text-2xl pt-4 text-center">
+                Temperature
                 <div className="font-bold text-5xl p-4">{temperature}°C</div>
               </div>
-              <div className="w-[250px] h-32 bg-blue-500 m-2 rounded-md font-bold text-2xl pt-4 text-center">
-                Temperature:
-                <div className="font-bold text-5xl p-4">{temperature}°C</div>
+              <div className="w-[250px] h-32 bg-gray-700 m-2 rounded-md font-bold text-2xl pt-4 text-center">
+                Time
+                <div className=" font-bold text-5xl p-4">{time}</div>
               </div>
             </div>
-            <div className="flex-grow bg-green-500 m-2 rounded-md font-bold text-2xl pt-6 text-center flex flex-col items-center">
+            <div className="flex-grow bg-gray-700 m-2 rounded-md font-bold text-2xl pt-6 text-center flex flex-col items-center">
               <div>Soil Humidity Sensor</div>
               <div className="flex gap-40">
                 {Object.keys(soilMoisture).map((sensor, index) => (
@@ -113,89 +121,94 @@ const Page = () => {
             </div>
           </div>
 
-          {/* Today History Section */}
           <div className="flex flex-grow mb-12">
-            <div className="w-1/2 bg-red-500 m-2 rounded-md font-bold text-2xl pt-6 text-center ">
+            <div className="w-1/2 bg-gray-700 m-2 rounded-md p-6 text-center text-2xl font-bold">
               Today History
-              {todayHistory ? (
-                sortedTimeEntries(getTodayDate()).map((time) => (
+              <div className="h-[500px] overflow-y-auto mt-4">
+                {sortedTimeEntries(getTodayDate()).map((time) => (
                   <div key={time} className="pt-2">
                     <div
-                      className="cursor-pointer font-semibold"
-                      onClick={() => toggleTimeHistory(time)} // Update to toggle by time
+                      className="cursor-pointer font-semibold bg-gray-800 p-2 rounded-md"
+                      onClick={() => toggleDate(time)}
                     >
                       {time}
-                      {expandedDate === time}
                     </div>
                     <Collapse isOpened={expandedDate === time}>
-                      <div>
-                        <div className="text-left">Time: {time}</div>
-                        <div className="text-left">
-                          Event: {todayHistory[time].event}
+                      <div className="bg-red-400 p-4 rounded-md mt-2 text-left">
+                        <div>Time: {time}</div>
+                        <div>
+                          Event: {historyData[getTodayDate()]?.[time]?.event}
                         </div>
-                        <div className="text-left">
-                          Temperature: {todayHistory[time].temperature}°C
+                        <div>
+                          Temperature:{" "}
+                          {historyData[getTodayDate()]?.[time]?.temperature}°C
                         </div>
-                        <div className="text-left">Soil Moisture:</div>
+                        <div>Soil Moisture:</div>
                         <ul className="list-disc ml-4">
-                          {Object.keys(todayHistory[time].soil_moisture).map(
-                            (sensor) => (
-                              <li key={sensor} className="text-left">
-                                {sensor}:{" "}
-                                {todayHistory[time].soil_moisture[sensor]}%
-                              </li>
-                            )
-                          )}
+                          {Object.keys(
+                            historyData[getTodayDate()]?.[time]
+                              ?.soil_moisture || {}
+                          ).map((sensor) => (
+                            <li key={sensor}>
+                              {sensor}:{" "}
+                              {
+                                historyData[getTodayDate()]?.[time]
+                                  ?.soil_moisture[sensor]
+                              }
+                              %
+                            </li>
+                          ))}
                         </ul>
                       </div>
                     </Collapse>
                   </div>
-                ))
-              ) : (
-                <div>-</div> // If no data for today, display "-"
-              )}
+                ))}
+              </div>
             </div>
 
-            {/* All History Section */}
-            <div className="w-1/2 bg-yellow-500 m-2 rounded-md font-bold text-2xl  text-center">
-              <div className="text-center pt-6">
-                All History
+            <div className="w-1/2 bg-gray-700 m-2 rounded-md p-6 text-center text-2xl font-bold">
+              All History
+              <div className="h-[600px] overflow-y-auto mt-4">
                 {sortedHistoryDates.map((date) => (
-                  <div key={date} className="">
+                  <div key={date} className="mb-2">
                     <div
-                      className="cursor-pointer font-semibold"
+                      className="cursor-pointer font-semibold bg-gray-800 p-2 rounded-md"
                       onClick={() => toggleDate(date)}
                     >
                       {date}
                     </div>
                     <Collapse isOpened={expandedDate === date}>
-                      {sortedTimeEntries(date).map((time) => (
-                        <div
-                          key={time}
-                          className="pl-4 border-l-2 border-gray-300 ml-2 mt-2"
-                        >
-                          <div className="text-left">Time: {time}</div>
-                          <div className="text-left">
-                            Event: {historyData[date][time].event}
+                      <div className="bg-gray-900 p-4 rounded-md mt-2">
+                        {sortedTimeEntries(date).map((time) => (
+                          <div
+                            key={time}
+                            className="bg-gray-800 p-4 rounded-md mt-2 text-left"
+                          >
+                            <div>Time: {time}</div>
+                            <div>Event: {historyData[date]?.[time]?.event}</div>
+                            <div>
+                              Temperature:{" "}
+                              {historyData[date]?.[time]?.temperature}°C
+                            </div>
+                            <div>Soil Moisture:</div>
+                            <ul className="list-disc ml-4">
+                              {Object.keys(
+                                historyData[date]?.[time]?.soil_moisture || {}
+                              ).map((sensor) => (
+                                <li key={sensor}>
+                                  {sensor}:{" "}
+                                  {
+                                    historyData[date]?.[time]?.soil_moisture[
+                                      sensor
+                                    ]
+                                  }
+                                  %
+                                </li>
+                              ))}
+                            </ul>
                           </div>
-                          <div className="text-left">
-                            Temperature: {historyData[date][time].temperature}
-                            °C
-                          </div>
-                          <div className="text-left">Soil Moisture:</div>
-                          <ul className="list-disc ml-4">
-                            {Object.keys(
-                              historyData[date][time].soil_moisture
-                            ).map((sensor) => (
-                              <li key={sensor} className="text-left">
-                                {sensor}:{" "}
-                                {historyData[date][time].soil_moisture[sensor]}%
-                              </li>
-                            ))}
-                          </ul>
-                          <div className="w-[95%] py-1 bg-white my-2 "></div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </Collapse>
                   </div>
                 ))}

@@ -15,8 +15,7 @@ const Navbar = () => {
   return (
     <>
       <div className={`navbar ${isExpanded ? "expanded" : ""}`}>
-        <div onClick={toggleNavbar} className="  px-2 py-5 ">
-          {" "}
+        <div onClick={toggleNavbar} className="px-2 py-5 cursor-pointer">
           {isExpanded ? (
             <IoArrowBack size={20} />
           ) : (
@@ -43,6 +42,9 @@ const Navbar = () => {
         </ul>
         <style jsx>{`
           .navbar {
+            position: sticky;
+            top: 0;
+            left: 0;
             width: ${isExpanded ? "200px" : "50px"};
             transition: width 0.3s;
             background-color: #333;
@@ -51,6 +53,7 @@ const Navbar = () => {
             display: flex;
             flex-direction: column;
             align-items: center;
+            z-index: 1000;
           }
           .toggle-icon {
             margin: 10px;
