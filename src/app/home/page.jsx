@@ -152,35 +152,39 @@ const Page = () => {
                     </div>
                     <Collapse isOpened={expandedDate === date}>
                       <div className="bg-gray-900 p-4 rounded-md mt-2">
-                        {sortedTimeEntries(date).map((time) => (
-                          <div
-                            key={time}
-                            className="bg-gray-800 p-4 rounded-md mt-2 text-left"
-                          >
-                            <div>Time: {time}</div>
-                            <div>Event: {historyData[date]?.[time]?.event}</div>
-                            <div>
-                              Temperature:{" "}
-                              {historyData[date]?.[time]?.temperature}°C
+                        <div className="max-h-[500px] overflow-y-auto">
+                          {sortedTimeEntries(date).map((time) => (
+                            <div
+                              key={time}
+                              className="bg-gray-800 p-4 rounded-md mt-4 text-left"
+                            >
+                              <div>Time: {time}</div>
+                              <div>
+                                Event: {historyData[date]?.[time]?.event}
+                              </div>
+                              <div>
+                                Temperature:{" "}
+                                {historyData[date]?.[time]?.temperature}°C
+                              </div>
+                              <div>Soil Moisture:</div>
+                              <ul className=" pl-2 list-disc ml-4">
+                                {Object.keys(
+                                  historyData[date]?.[time]?.soil_moisture || {}
+                                ).map((sensor) => (
+                                  <li key={sensor}>
+                                    {sensor}:{" "}
+                                    {
+                                      historyData[date]?.[time]?.soil_moisture[
+                                        sensor
+                                      ]
+                                    }
+                                    %
+                                  </li>
+                                ))}
+                              </ul>
                             </div>
-                            <div>Soil Moisture:</div>
-                            <ul className="list-disc ml-4">
-                              {Object.keys(
-                                historyData[date]?.[time]?.soil_moisture || {}
-                              ).map((sensor) => (
-                                <li key={sensor}>
-                                  {sensor}:{" "}
-                                  {
-                                    historyData[date]?.[time]?.soil_moisture[
-                                      sensor
-                                    ]
-                                  }
-                                  %
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
                     </Collapse>
                   </div>
