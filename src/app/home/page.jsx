@@ -71,7 +71,7 @@ const Page = () => {
           <div className="flex">
             <div className="flex flex-col">
               <div className="w-[250px] h-32 bg-gray-700 m-2 rounded-md text-center text-2xl font-bold pt-4">
-                Temperature
+                Temperatur
                 <div className="text-5xl p-4">{temperature}°C</div>
               </div>
               <div className="w-[250px] h-32 bg-gray-700 m-2 rounded-md text-center text-2xl font-bold pt-4">
@@ -109,12 +109,10 @@ const Page = () => {
                     <Collapse isOpened={expandedDate === time}>
                       <div className="bg-red-400 p-4 rounded-md mt-2 text-left">
                         <div>Time: {time}</div>
+
                         <div>
-                          Event: {historyData[getTodayDate()]?.[time]?.event}
-                        </div>
-                        <div>
-                          Temperature:{" "}
-                          {historyData[getTodayDate()]?.[time]?.temperature}°C
+                          Temperatur:{" "}
+                          {historyData[getTodayDate()]?.[time]?.temperature}° C
                         </div>
                         <div>Soil Moisture:</div>
                         <ul className="list-disc ml-4">
@@ -141,7 +139,7 @@ const Page = () => {
 
             <div className="w-1/2 bg-gray-700 m-2 rounded-md p-6 text-center text-2xl font-bold">
               All History
-              <div className="h-[600px] overflow-y-auto mt-4">
+              <div className="h-[500px] overflow-y-auto mt-4">
                 {sortedHistoryDates.map((date) => (
                   <div key={date} className="mb-2">
                     <div
@@ -151,19 +149,17 @@ const Page = () => {
                       {date}
                     </div>
                     <Collapse isOpened={expandedDate === date}>
-                      <div className="bg-gray-900 p-4 rounded-md mt-2">
-                        <div className="max-h-[500px] overflow-y-auto">
+                      <div className="bg-gray-900 p-6 rounded-md mt-2">
+                        <div className="max-h-[400px] overflow-y-auto">
                           {sortedTimeEntries(date).map((time) => (
                             <div
                               key={time}
                               className="bg-gray-800 p-4 rounded-md mt-4 text-left"
                             >
-                              <div>Time: {time}</div>
+                              <div className="">Time: {time}</div>
+
                               <div>
-                                Event: {historyData[date]?.[time]?.event}
-                              </div>
-                              <div>
-                                Temperature:{" "}
+                                Temperatur:{" "}
                                 {historyData[date]?.[time]?.temperature}°C
                               </div>
                               <div>Soil Moisture:</div>
