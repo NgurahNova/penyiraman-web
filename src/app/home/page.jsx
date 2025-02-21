@@ -15,21 +15,14 @@ const Page = () => {
     sensor_5: 0,
   });
   const [historyData, setHistoryData] = useState({});
-  const [todayHistory, setTodayHistory] = useState(null);
   const [expandedDate, setExpandedDate] = useState(null);
-  const [expandedToday, setExpandedToday] = useState(false); // State for Today History collapse
   const [time, setTime] = useState(new Date().toLocaleTimeString());
 
-  // Function to get today's date in YYYY-MM-DD format
   const getTodayDate = () => {
     const today = new Date();
-    const year = today.getFullYear();
-    const month = (today.getMonth() + 1).toString().padStart(2, "0");
-    const day = today.getDate().toString().padStart(2, "0");
-    return `${year}-${month}-${day}`;
+    return today.toISOString().split("T")[0];
   };
 
-  // Fetch real-time data from Firebase
   useEffect(() => {
     const dataRef = ref(database, "realtime_data");
     onValue(dataRef, (snapshot) => {
@@ -41,19 +34,12 @@ const Page = () => {
     });
   }, []);
 
-  // Fetch historical data from Firebase
   useEffect(() => {
-    const todayDate = getTodayDate(); // Get today's date
     const historyRef = ref(database, "history_data");
     onValue(historyRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
         setHistoryData(data);
-        if (data[todayDate]) {
-          setTodayHistory(data[todayDate]); // Set today's history data
-        } else {
-          setTodayHistory(null); // No data for today
-        }
       }
     });
   }, []);
@@ -65,48 +51,35 @@ const Page = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Toggle the date collapse
   const toggleDate = (date) => {
     setExpandedDate(expandedDate === date ? null : date);
   };
 
-  // Toggle the "Today History" collapse
-  const toggleTimeHistory = (time) => {
-    setExpandedDate(expandedDate === time ? null : time); // Toggle the time entry collapse
-  };
+  const sortedHistoryDates = Object.keys(historyData).sort().reverse();
 
-  // Function to sort data by time (latest first)
-  const sortedHistoryDates = Object.keys(historyData).sort((a, b) => {
-    return new Date(b) - new Date(a); // Sort dates in descending order
-  });
-
-  // Function to sort time entries by time (latest first)
   const sortedTimeEntries = (date) => {
-    if (historyData[date]) {
-      return Object.keys(historyData[date]).sort((a, b) => {
-        return new Date(b) - new Date(a); // Sort time in descending order
-      });
-    }
-    return [];
+    return historyData[date]
+      ? Object.keys(historyData[date]).sort().reverse()
+      : [];
   };
 
   return (
     <>
       <div className="flex min-h-screen">
         <Navbar />
-        <div className="flex-grow flex flex-col pl-2 pt-2 pr-2">
+        <div className="flex-grow flex flex-col p-2">
           <div className="flex">
             <div className="flex flex-col">
-              <div className="w-[250px] h-32 bg-gray-700 m-2 rounded-md font-bold text-2xl pt-4 text-center">
+              <div className="w-[250px] h-32 bg-gray-700 m-2 rounded-md text-center text-2xl font-bold pt-4">
                 Temperature
-                <div className="font-bold text-5xl p-4">{temperature}°C</div>
+                <div className="text-5xl p-4">{temperature}°C</div>
               </div>
-              <div className="w-[250px] h-32 bg-gray-700 m-2 rounded-md font-bold text-2xl pt-4 text-center">
+              <div className="w-[250px] h-32 bg-gray-700 m-2 rounded-md text-center text-2xl font-bold pt-4">
                 Time
-                <div className=" font-bold text-5xl p-4">{time}</div>
+                <div className="text-5xl p-4">{time}</div>
               </div>
             </div>
-            <div className="flex-grow bg-gray-700 m-2 rounded-md font-bold text-2xl pt-6 text-center flex flex-col items-center">
+            <div className="flex-grow bg-gray-700 m-2 rounded-md text-2xl font-bold pt-6 text-center flex flex-col items-center">
               <div>Soil Humidity Sensor</div>
               <div className="flex gap-40">
                 {Object.keys(soilMoisture).map((sensor, index) => (
