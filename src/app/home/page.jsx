@@ -107,7 +107,7 @@ const Page = () => {
                       {time}
                     </div>
                     <Collapse isOpened={expandedDate === time}>
-                      <div className="bg-red-400 p-4 rounded-md mt-2 text-left">
+                      <div className="bg-gray-800 p-4 rounded-md mt-2 text-left">
                         <div>Time: {time}</div>
 
                         <div>
