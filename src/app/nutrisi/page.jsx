@@ -80,7 +80,7 @@ const Page = () => {
             <div className="flex flex-col">
               <div className="w-[250px] h-32 bg-gray-700 m-2 rounded-md text-center text-2xl font-bold pt-4">
                 Temperature
-                <div className="text-5xl p-4">{temperature}°C</div>
+                <div className="text-4xl p-4">{temperature}°C</div>
               </div>
               <div className="w-[250px] h-32 bg-gray-700 m-2 rounded-md text-center text-2xl font-bold pt-4">
                 TDS
