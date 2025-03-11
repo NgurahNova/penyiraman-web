@@ -7,42 +7,36 @@ import { Collapse } from "react-collapse";
 
 const Page = () => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [distance1, setDistance1] = useState(0);
-  const [distance2, setDistance2] = useState(0);
-  const [relayA, setRelayA] = useState(false);
-  const [relayB, setRelayB] = useState(false);
-  const [tdsValue, setTdsValue] = useState(0);
-  const [temperaturetds, setTemperatureTds] = useState(0);
+  const [temperature, setTemperature] = useState(0);
+  const [soilMoisture, setSoilMoisture] = useState({
+    sensor_1: 0,
+    sensor_2: 0,
+    sensor_3: 0,
+    sensor_4: 0,
+    sensor_5: 0,
+  });
   const [historyData, setHistoryData] = useState({});
   const [expandedDate, setExpandedDate] = useState(null);
   const [time, setTime] = useState(new Date().toLocaleTimeString());
 
-  // Function to get today's date in YYYY-MM-DD format
   const getTodayDate = () => {
     const today = new Date();
     return today.toISOString().split("T")[0];
   };
 
-  // Fetch real-time data from Firebase
   useEffect(() => {
-    const dataRef = ref(database, "MonitoringNutrisi/realtime");
+    const dataRef = ref(database, "realtime_data");
     onValue(dataRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        setDistance1(data.distance1);
-        setDistance2(data.distance2);
-        setRelayA(data.relayA);
-        setRelayB(data.relayB);
-        setTdsValue(data.tdsValue);
-        setTemperatureTds(data.temperaturetds);
+        setTemperature(data.temperature);
+        setSoilMoisture(data.soil_moisture);
       }
     });
   }, []);
 
-  // Fetch historical data from Firebase
   useEffect(() => {
-    const todayDate = getTodayDate(); // Get today's date
-    const historyRef = ref(database, "MonitoringNutrisi/history");
+    const historyRef = ref(database, "history_data");
     onValue(historyRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
@@ -51,7 +45,6 @@ const Page = () => {
     });
   }, []);
 
-  // Update clock
   useEffect(() => {
     const interval = setInterval(() => {
       setTime(new Date().toLocaleTimeString());
@@ -59,17 +52,16 @@ const Page = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Toggle the date collapse
   const toggleDate = (date) => {
     setExpandedDate(expandedDate === date ? null : date);
   };
 
-  // Function to sort data by time (latest first)
   const sortedHistoryDates = Object.keys(historyData).sort().reverse();
 
-  // Function to sort time entries by time (latest first)
   const sortedTimeEntries = (date) => {
-    return historyData[date] ? Object.keys(historyData[date]).sort().reverse() : [];
+    return historyData[date]
+      ? Object.keys(historyData[date]).sort().reverse()
+      : [];
   };
 
   return (
@@ -83,24 +75,24 @@ const Page = () => {
             <div className="flex flex-col">
               <div className="w-[250px] h-32 bg-gray-700 m-2 rounded-md text-center text-2xl font-bold pt-4">
                 Temperature
-                <div className="text-4xl p-4">{temperaturetds}°C</div>
+                <div className="text-5xl p-4">{temperature}°C</div>
               </div>
               <div className="w-[250px] h-32 bg-gray-700 m-2 rounded-md text-center text-2xl font-bold pt-4">
-                TDS
-                <div className="text-4xl p-4">{tdsValue} ppm</div>
+                Time
+                <div className="text-5xl p-4">{time}</div>
               </div>
             </div>
             <div className="flex-grow bg-gray-700 m-2 rounded-md text-2xl font-bold pt-6 text-center flex flex-col items-center">
-              <div>Ultrasonic Sensor</div>
+              <div>Soil Humidity Sensor</div>
               <div className="flex gap-40">
-                <div className="w-full mt-10 p-2 rounded-md">
-                  Sensor 1
-                  <div className="text-4xl font-bold pt-4">{distance1} CM</div>
-                </div>
-                <div className="w-full mt-10 p-2 rounded-md">
-                  Sensor 2
-                  <div className="text-4xl font-bold pt-4">{distance2} CM</div>
-                </div>
+                {Object.keys(soilMoisture).map((sensor, index) => (
+                  <div key={index} className="w-full mt-10 p-2 rounded-md">
+                    {sensor.replace("sensor_", "Sensor ")}
+                    <div className="text-5xl font-bold pt-4">
+                      {soilMoisture[sensor]}%
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -120,27 +112,27 @@ const Page = () => {
                     <Collapse isOpened={expandedDate === time}>
                       <div className="bg-gray-800 p-4 rounded-md mt-2 text-left">
                         <div>Time: {time}</div>
+
                         <div>
-                          Temperature: {historyData[getTodayDate()]?.[time]?.temperaturetds}°C
+                          Temperatur:{" "}
+                          {historyData[getTodayDate()]?.[time]?.temperature}° C
                         </div>
-                        <div>
-                          TDS Value: {historyData[getTodayDate()]?.[time]?.tdsValue} PPM
-                        </div>
-                        <div>Ultrasonic:</div>
+                        <div>Soil Moisture:</div>
                         <ul className="list-disc ml-4">
-                          <li>
-                            Distance 1: {historyData[getTodayDate()]?.[time]?.distance1} CM
-                          </li>
-                          <li>
-                            Distance 2: {historyData[getTodayDate()]?.[time]?.distance2} CM
-                          </li>
+                          {Object.keys(
+                            historyData[getTodayDate()]?.[time]
+                              ?.soil_moisture || {}
+                          ).map((sensor) => (
+                            <li key={sensor}>
+                              {sensor}:{" "}
+                              {
+                                historyData[getTodayDate()]?.[time]
+                                  ?.soil_moisture[sensor]
+                              }
+                              %
+                            </li>
+                          ))}
                         </ul>
-                        <div>
-                          Relay A: {historyData[getTodayDate()]?.[time]?.relayA}
-                        </div>
-                        <div>
-                          Relay B: {historyData[getTodayDate()]?.[time]?.relayB}
-                        </div>
                       </div>
                     </Collapse>
                   </div>
@@ -167,28 +159,28 @@ const Page = () => {
                               key={time}
                               className="bg-gray-800 p-4 rounded-md mt-4 text-left"
                             >
-                              <div>Time: {time}</div>
+                              <div className="">Time: {time}</div>
+
                               <div>
-                                Temperature: {historyData[date]?.[time]?.temperature}°C
+                                Temperatur:{" "}
+                                {historyData[date]?.[time]?.temperature}°C
                               </div>
-                              <div>
-                                TDS Value: {historyData[date]?.[time]?.tdsValue} PPM
-                              </div>
-                              <div>Ultrasonic:</div>
-                              <ul className="list-disc ml-4">
-                                <li>
-                                  Distance 1: {historyData[date]?.[time]?.distance1} CM
-                                </li>
-                                <li>
-                                  Distance 2: {historyData[date]?.[time]?.distance2} CM
-                                </li>
+                              <div>Soil Moisture:</div>
+                              <ul className=" pl-2 list-disc ml-4">
+                                {Object.keys(
+                                  historyData[date]?.[time]?.soil_moisture || {}
+                                ).map((sensor) => (
+                                  <li key={sensor}>
+                                    {sensor}:{" "}
+                                    {
+                                      historyData[date]?.[time]?.soil_moisture[
+                                        sensor
+                                      ]
+                                    }
+                                    %
+                                  </li>
+                                ))}
                               </ul>
-                              <div>
-                                Relay A: {historyData[date]?.[time]?.relayA}
-                              </div>
-                              <div>
-                                Relay B: {historyData[date]?.[time]?.relayB}
-                              </div>
                             </div>
                           ))}
                         </div>
