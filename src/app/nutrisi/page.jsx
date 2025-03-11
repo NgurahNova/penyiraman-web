@@ -15,7 +15,6 @@ const Page = () => {
   const [temperaturetds, setTemperatureTds] = useState(0);
   const [historyData, setHistoryData] = useState({});
   const [expandedDate, setExpandedDate] = useState(null);
-  const [time, setTime] = useState(new Date().toLocaleTimeString());
 
   // Function to get today's date in YYYY-MM-DD format
   const getTodayDate = () => {
@@ -41,7 +40,6 @@ const Page = () => {
 
   // Fetch historical data from Firebase
   useEffect(() => {
-    const todayDate = getTodayDate(); // Get today's date
     const historyRef = ref(database, "MonitoringNutrisi/history");
     onValue(historyRef, (snapshot) => {
       const data = snapshot.val();
@@ -51,13 +49,6 @@ const Page = () => {
     });
   }, []);
 
-  // Update clock
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTime(new Date().toLocaleTimeString());
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
 
   // Toggle the date collapse
   const toggleDate = (date) => {
