@@ -49,7 +49,6 @@ const Page = () => {
     });
   }, []);
 
-
   // Toggle the date collapse
   const toggleDate = (date) => {
     setExpandedDate(expandedDate === date ? null : date);
@@ -60,16 +59,20 @@ const Page = () => {
 
   // Function to sort time entries by time (latest first)
   const sortedTimeEntries = (date) => {
-    return historyData[date] ? Object.keys(historyData[date]).sort().reverse() : [];
+    return historyData[date]
+      ? Object.keys(historyData[date]).sort().reverse()
+      : [];
   };
 
   return (
     <>
       <div className="flex min-h-screen">
-      <Navbar isExpanded={isExpanded} setIsExpanded={setIsExpanded} />
-        <div className={`flex-grow flex flex-col p-4 transition-all duration-300 ${
+        <Navbar isExpanded={isExpanded} setIsExpanded={setIsExpanded} />
+        <div
+          className={`flex-grow flex flex-col p-4 transition-all duration-300 ${
             isExpanded ? "ml-48" : "ml-14"
-          }`}>
+          }`}
+        >
           <div className="flex">
             <div className="flex flex-col">
               <div className="w-[250px] h-32 bg-gray-700 m-2 rounded-md text-center text-2xl font-bold pt-4">
@@ -112,18 +115,23 @@ const Page = () => {
                       <div className="bg-gray-800 p-4 rounded-md mt-2 text-left">
                         <div>Time: {time}</div>
                         <div>
-                          Temperature: {historyData[getTodayDate()]?.[time]?.temperaturetds}°C
+                          Temperature:{" "}
+                          {historyData[getTodayDate()]?.[time]?.temperaturetds}
+                          °C
                         </div>
                         <div>
-                          TDS Value: {historyData[getTodayDate()]?.[time]?.tdsValue} PPM
+                          TDS Value:{" "}
+                          {historyData[getTodayDate()]?.[time]?.tdsValue} PPM
                         </div>
                         <div>Ultrasonic:</div>
                         <ul className="list-disc ml-4">
                           <li>
-                            Distance 1: {historyData[getTodayDate()]?.[time]?.distance1} CM
+                            Distance 1:{" "}
+                            {historyData[getTodayDate()]?.[time]?.distance1} CM
                           </li>
                           <li>
-                            Distance 2: {historyData[getTodayDate()]?.[time]?.distance2} CM
+                            Distance 2:{" "}
+                            {historyData[getTodayDate()]?.[time]?.distance2} CM
                           </li>
                         </ul>
                         <div>
@@ -160,18 +168,22 @@ const Page = () => {
                             >
                               <div>Time: {time}</div>
                               <div>
-                                Temperature: {historyData[date]?.[time]?.temperature}°C
+                                Temperature:{" "}
+                                {historyData[date]?.[time]?.temperature}°C
                               </div>
                               <div>
-                                TDS Value: {historyData[date]?.[time]?.tdsValue} PPM
+                                TDS Value: {historyData[date]?.[time]?.tdsValue}{" "}
+                                PPM
                               </div>
                               <div>Ultrasonic:</div>
                               <ul className="list-disc ml-4">
                                 <li>
-                                  Distance 1: {historyData[date]?.[time]?.distance1} CM
+                                  Distance 1:{" "}
+                                  {historyData[date]?.[time]?.distance1} CM
                                 </li>
                                 <li>
-                                  Distance 2: {historyData[date]?.[time]?.distance2} CM
+                                  Distance 2:{" "}
+                                  {historyData[date]?.[time]?.distance2} CM
                                 </li>
                               </ul>
                               <div>

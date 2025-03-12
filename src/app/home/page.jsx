@@ -96,7 +96,7 @@ const Page = () => {
           <div className="flex mt-4">
             <div className="flex flex-col">
               <div className="w-[250px] h-32 bg-gray-700 m-2 rounded-md text-center text-xl font-bold pt-4">
-                Water Temperature 
+                Water Temperature
                 <div className="text-4xl p-4">{temperaturetds}°C</div>
               </div>
               <div className="w-[250px] h-32 bg-gray-700 m-2 rounded-md text-center text-xl font-bold pt-4">

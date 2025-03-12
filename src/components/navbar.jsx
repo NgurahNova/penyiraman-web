@@ -9,27 +9,57 @@ const Navbar = ({ isExpanded, setIsExpanded }) => {
   return (
     <div
       className={`bg-gray-800 text-white transition-all duration-300 h-screen fixed top-0 left-0 ${
-        isExpanded ? "w-48" : "w-14"
+        isExpanded ? "w-48" : "w-16"
       }`}
     >
       <div
         onClick={() => setIsExpanded(!isExpanded)}
-        className="p-4 cursor-pointer text-center"
+        className="p-4 cursor-pointer text-center ml-2"
       >
         {isExpanded ? <IoArrowBack size={24} /> : <RxHamburgerMenu size={24} />}
       </div>
       <ul className="space-y-6 mt-6">
         <li className="flex items-center px-4">
-          <FaHome className="text-xl" />
-          {isExpanded && <Link href="/home" className="ml-4">Home</Link>}
+          <Link href="/home" className="flex items-center">
+            <FaHome className="text-xl ml-2" />
+            <p
+              className={`ml-4 transition-opacity duration-300 transform ${
+                isExpanded
+                  ? "opacity-100 translate-x-0"
+                  : "opacity-0 translate-x-0"
+              }`}
+            >
+              Home
+            </p>
+          </Link>
         </li>
         <li className="flex items-center px-4">
-          <FaWater className="text-xl" />
-          {isExpanded && <Link href="/penyiraman" className="ml-4">Penyiraman</Link>}
+          <Link href="/penyiraman" className="flex items-center">
+            <FaWater className="text-xl ml-2" />
+            <p
+              className={`ml-4 transition-opacity duration-300 transform ${
+                isExpanded
+                  ? "opacity-100 translate-x-0"
+                  : "opacity-0 translate-x-0"
+              }`}
+            >
+              Penyiraman
+            </p>
+          </Link>
         </li>
         <li className="flex items-center px-4">
-          <FaNutritionix className="text-xl" />
-          {isExpanded && <Link href="/nutrisi" className="ml-4">Nutrisi</Link>}
+          <Link href="/nutrisi" className="flex items-center">
+            <FaNutritionix className="text-xl ml-2" />
+            <p
+              className={`ml-4 transition-opacity duration-300 transform ${
+                isExpanded
+                  ? "opacity-100 translate-x-0"
+                  : "opacity-0 translate-x-0"
+              }`}
+            >
+              Nutrisi
+            </p>
+          </Link>
         </li>
       </ul>
     </div>
