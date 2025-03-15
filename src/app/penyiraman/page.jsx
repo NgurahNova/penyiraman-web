@@ -102,7 +102,7 @@ const Page = () => {
 
   return (
     <>
-      <div className="flex min-h-screen">
+      <div className="flex min-h-screen ">
         <Navbar isExpanded={isExpanded} setIsExpanded={setIsExpanded} />
         <div
           className={`flex-grow flex flex-col p-4 transition-all duration-300 ${
