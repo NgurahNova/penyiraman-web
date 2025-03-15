@@ -4,6 +4,8 @@ import { database, ref, onValue } from "@/components/firebase";
 import Footer from "@/components/footer";
 import Navbar from "@/components/navbar";
 import { Collapse } from "react-collapse";
+import TriggerRelay from "@/components/triggernutrisi";
+import TriggerRestart from "@/components/triggerrestart";
 
 const Page = () => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -75,13 +77,13 @@ const Page = () => {
         >
           <div className="flex">
             <div className="flex flex-col">
-              <div className="w-[250px] h-32 bg-gray-700 m-2 rounded-md text-center text-2xl font-bold pt-4">
+              <div className="w-[250px] h-40 bg-gray-700 m-2 rounded-md text-center text-2xl font-bold flex flex-col pt-6">
                 Temperature
-                <div className="text-4xl p-4">{temperaturetds}°C</div>
+                <div className="flex-grow flex justify-center items-center text-5xl">{temperaturetds}°C</div>
               </div>
-              <div className="w-[250px] h-32 bg-gray-700 m-2 rounded-md text-center text-2xl font-bold pt-4">
+              <div className="w-[250px] h-40 bg-gray-700 m-2 rounded-md text-center text-2xl font-bold flex flex-col pt-6">
                 TDS
-                <div className="text-4xl p-4">{tdsValue} ppm</div>
+                <div className="flex-grow flex justify-center items-center text-5xl">{tdsValue} ppm</div>
               </div>
             </div>
             <div className="flex-grow bg-gray-700 m-2 rounded-md text-2xl font-bold pt-6 text-center flex flex-col items-center">
@@ -95,6 +97,16 @@ const Page = () => {
                   Sensor 2
                   <div className="text-4xl font-bold pt-4">{distance2} CM</div>
                 </div>
+              </div>
+            </div>
+            <div className="flex flex-col">
+              <div className="w-[250px] h-40 bg-gray-700 m-2 rounded-md text-center text-2xl font-bold pt-4">
+                Restart Button
+                <TriggerRestart />
+              </div>
+              <div className="w-[250px] h-40 bg-gray-700 m-2 rounded-md text-center text-2xl font-bold pt-4">
+                Nutrition Button
+                <TriggerRelay />
               </div>
             </div>
           </div>
