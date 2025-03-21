@@ -122,7 +122,7 @@ const Page = () => {
                 <div className="text-5xl p-4">{time}</div>
               </div>
             </div>
-            <div className="flex-grow bg-gray-700 m-2 rounded-md text-2xl font-bold pt-6 text-center flex flex-col items-center">
+            <div className="w-full bg-gray-700 m-2 rounded-md text-2xl font-bold pt-6 text-center flex flex-col items-center">
               <div>Soil Humidity Sensor</div>
               <div className=" flex flex-wrap justify-center  lg:gap-14 p-6">
                 {Object.keys(soilMoisture).map((sensor, index) => (
