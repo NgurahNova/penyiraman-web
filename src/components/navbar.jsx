@@ -27,6 +27,12 @@ const menuItems = [
     icon: GiChemicalDrop,
     activeIcon: GiChemicalDrop,
   },
+  {
+    path: "/login",
+    label: "Logout",
+    icon: FiLogOut,
+    activeIcon: FiLogOut,
+  },
 ];
 
 const Navbar = ({ isExpanded, setIsExpanded }) => {
@@ -56,7 +62,7 @@ const Navbar = ({ isExpanded, setIsExpanded }) => {
       {/* Toggle Button */}
       <button
         onClick={handleToggle}
-        className="p-4 cursor-pointer text-center hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-md mx-auto mt-2"
+        className="p-4 cursor-pointer text-center hover:bg-gray-700 transition-colors rounded-md mx-auto mt-2"
         aria-expanded={isExpanded}
         aria-label={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
       >
@@ -68,15 +74,21 @@ const Navbar = ({ isExpanded, setIsExpanded }) => {
         {menuItems.map((item) => {
           const isActive = pathname === item.path;
           const Icon = isActive ? item.activeIcon : item.icon;
+          const isLogout = item.path === "/login";
 
           return (
             <li key={item.path}>
               <Link
                 href={item.path}
+                onClick={isLogout ? handleLogout : undefined}
                 className={`flex items-center ${
-                  isExpanded ? "px-4" : "px-0 justify-center"
+                  isExpanded ? "px-4" : "px-0 justify-center "
                 } py-2 mx-2 rounded-md ${
-                  isActive ? "bg-blue-600" : "hover:bg-gray-700"
+                  isActive
+                    ? "bg-blue-600"
+                    : isLogout
+                    ? "bg-red-500 hover:bg-red-600"
+                    : "hover:bg-gray-700"
                 } transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400`}
                 aria-current={isActive ? "page" : undefined}
               >
@@ -95,18 +107,6 @@ const Navbar = ({ isExpanded, setIsExpanded }) => {
       </ul>
 
       {/* Logout Button */}
-      <div className="p-4 mt-auto mb-8">
-        <button
-          onClick={handleLogout}
-          className={`flex items-center ${
-            isExpanded ? "justify-start px-4" : "justify-center px-0"
-          } w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-red-400`}
-          aria-label="Logout"
-        >
-          <FiLogOut className={`${isExpanded ? "text-xl" : "text-2xl"}`} />
-          {isExpanded && <span className="ml-2">Logout</span>}
-        </button>
-      </div>
     </nav>
   );
 };
