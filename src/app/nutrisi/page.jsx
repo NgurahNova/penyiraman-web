@@ -79,12 +79,12 @@ const Page = () => {
       : [];
   };
 
-  // Function to determine moisture level color
-  const getMoistureColor = (value) => {
-    if (value < 30) return "text-red-500";
-    if (value < 60) return "text-yellow-500";
-    return "text-green-500";
-  };
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTime(new Date().toLocaleTimeString());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Function to determine temperature color
   const getTemperatureColor = (value) => {
@@ -100,17 +100,17 @@ const Page = () => {
           <Navbar isExpanded={isExpanded} setIsExpanded={setIsExpanded} />
           <div
             className={`flex-grow flex flex-col p-6 transition-all duration-300 ${
-              isExpanded ? "ml-48" : "ml-14"
+              isExpanded ? "ml-48" : "ml-16"
             }`}
           >
             {/* Nutrisi Section */}
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
               <h1 className="text-3xl font-bold text-transparent bg-clip-text text-white">
                 Nutrisi
-              </h1>
-              <div className="flex items-center bg-gray-800 px-4 py-2 rounded-lg shadow-lg">
+              </h1>{" "}
+              <div className="flex md:items-center w-fit mt-4 md:mt-0 bg-gray-800 px-4 py-2 rounded-lg shadow-lg ">
                 <Clock className="mr-2 text-blue-400" />
-                <span className="text-xl font-medium">{time}</span>
+                <span className="text-xl font-medium ">{time}</span>
               </div>
             </div>
 
@@ -154,9 +154,9 @@ const Page = () => {
                     {tdsValue} <span className="text-2xl">ppm</span>
                   </div>
                   <p className="text-gray-400 mt-2 text-sm">
-                    {tdsValue < 500
+                    {tdsValue < 560
                       ? "Nutrisi rendah"
-                      : tdsValue > 1500
+                      : tdsValue > 900
                       ? "Nutrisi tinggi"
                       : "Nutrisi optimal"}
                   </p>

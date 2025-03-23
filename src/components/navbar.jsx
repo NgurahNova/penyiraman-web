@@ -54,7 +54,7 @@ const Navbar = ({ isExpanded, setIsExpanded }) => {
 
   return (
     <nav
-      className={`bg-gray-800 text-white transition-all duration-300 fixed top-0 left-0 h-screen flex flex-col ${
+      className={`bg-gray-800 text-white transition-all duration-300 fixed top-0 left-0 h-full flex flex-col ${
         isExpanded ? "w-48" : "w-16"
       } shadow-lg z-10`}
       aria-label="Main navigation"
