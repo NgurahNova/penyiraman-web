@@ -76,10 +76,10 @@ const Page = () => {
       {/* Navbar */}
       <ProtectedRoute>
         <div className="min-h-screen bg-gray-900 text-white">
-        <Navbar isExpanded={isExpanded} setIsExpanded={setIsExpanded} />
+          <Navbar isExpanded={isExpanded} setIsExpanded={setIsExpanded} />
           <div
             className={`flex-grow flex flex-col p-6 transition-all duration-300 ${
-              isExpanded ? "ml-48" : "ml-16"
+              isExpanded ? "ml-48" : "ml-2"
             }`}
           >
             {/* Header */}

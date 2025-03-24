@@ -100,7 +100,7 @@ const Page = () => {
           <Navbar isExpanded={isExpanded} setIsExpanded={setIsExpanded} />
           <div
             className={`flex-grow flex flex-col p-6 transition-all duration-300 ${
-              isExpanded ? "ml-48" : "ml-16"
+              isExpanded ? "ml-48" : "ml-2"
             }`}
           >
             {/* Nutrisi Section */}

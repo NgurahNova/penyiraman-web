@@ -148,10 +148,10 @@ const Page = () => {
     <div className=" bg-gray-900 text-white">
       <ProtectedRoute>
         <div className="min-h-screen bg-gray-900 text-white">
-        <Navbar isExpanded={isExpanded} setIsExpanded={setIsExpanded} />
+          <Navbar isExpanded={isExpanded} setIsExpanded={setIsExpanded} />
           <div
             className={`flex-grow flex flex-col p-6 transition-all duration-300 ${
-              isExpanded ? "ml-48" : "ml-16"
+              isExpanded ? "ml-48" : "ml-2"
             }`}
           >
             {/* Header */}
@@ -317,7 +317,7 @@ const Page = () => {
             </div>
 
             {/* History Section */}
-            <div className=" grid grid-cols-1 lg:grid-cols-2 gap-4 mb-16 lg:mb-0">
+            <div className=" grid grid-cols-1 lg:grid-cols-2 gap-4 mb-16 ">
               {/* Today's History */}
               <div className="bg-gray-800 rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-blue-900/30 hover:shadow-lg">
                 <div className="p-4 ">
