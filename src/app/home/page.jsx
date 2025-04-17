@@ -266,89 +266,91 @@ const Page = () => {
                     </p>
                   </div>
                 </div>
-
-                {/* Ultrasonic Sensor 1 */}
-                <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-yellow-200">
-                  <div className="p-5">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-medium text-gray-800">
-                        Level Tangki 1
-                      </h3>
-                      <Ruler
-                        className={`${
-                          distance1 <= 35
-                            ? "text-green-500"
-                            : distance1 < 40
-                            ? "text-yellow-500"
-                            : "text-red-500"
-                        }`}
-                        size={24}
-                      />
+                <div className="bg-white col-span-2 p-4  rounded-xl -full shadow-md borderborder-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg border-l-4 border-green-400">
+                  Tangki A/B MIX
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
+                    {/* Ultrasonic Sensor 1 */}
+                    <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-yellow-200">
+                      <div className="p-5">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-lg font-medium text-gray-800">
+                            Level Tangki A
+                          </h3>
+                          <Ruler
+                            className={`${
+                              distance1 <= 35
+                                ? "text-green-500"
+                                : distance1 < 40
+                                ? "text-yellow-500"
+                                : "text-red-500"
+                            }`}
+                            size={24}
+                          />
+                        </div>
+                        <div className="text-5xl font-bold mt-4 text-yellow-600">
+                          {distance1} <span className="text-2xl">CM</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-3 mt-4">
+                          <div
+                            className={`${
+                              distance1 <= 35
+                                ? "bg-green-500"
+                                : distance1 < 40
+                                ? "bg-yellow-500"
+                                : "bg-red-500"
+                            } h-3 rounded-full transition-all`}
+                            style={{
+                              // Progress bar decreases as distance increases
+                              width: `${
+                                (distance1 / 40) * 100 > 100
+                                  ? 0
+                                  : 100 - (distance1 / 40) * 100
+                              }%`,
+                            }}
+                          ></div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-5xl font-bold mt-4 text-yellow-600">
-                      {distance1} <span className="text-2xl">CM</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3 mt-4">
-                      <div
-                        className={`${
-                          distance1 <= 35
-                            ? "bg-green-500"
-                            : distance1 < 40
-                            ? "bg-yellow-500"
-                            : "bg-red-500"
-                        } h-3 rounded-full transition-all`}
-                        style={{
-                          // Progress bar decreases as distance increases
-                          width: `${
-                            (distance1 / 40) * 100 > 100
-                              ? 0
-                              : 100 - (distance1 / 40) * 100
-                          }%`,
-                        }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Ultrasonic Sensor 2 */}
-                <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-yellow-200">
-                  <div className="p-5">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-medium text-gray-800">
-                        Level Tangki 2
-                      </h3>
-                      <Ruler
-                        className={`${
-                          distance2 <= 35
-                            ? "text-green-500"
-                            : distance2 < 40
-                            ? "text-yellow-500"
-                            : "text-red-500"
-                        }`}
-                        size={24}
-                      />
-                    </div>
-                    <div className="text-5xl font-bold mt-4 text-yellow-600">
-                      {distance2} <span className="text-2xl">CM</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3 mt-4">
-                      <div
-                        className={`${
-                          distance1 <= 35
-                            ? "bg-green-500"
-                            : distance1 < 40
-                            ? "bg-yellow-500"
-                            : "bg-red-500"
-                        } h-3 rounded-full transition-all`}
-                        style={{
-                          // Progress bar decreases as distance increases
-                          width: `${
-                            (distance2 / 40) * 100 > 100
-                              ? 0
-                              : 100 - (distance2 / 40) * 100
-                          }%`,
-                        }}
-                      ></div>
+                    {/* Ultrasonic Sensor 2 */}
+                    <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-yellow-200">
+                      <div className="p-5">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-lg font-medium text-gray-800">
+                            Level Tangki B
+                          </h3>
+                          <Ruler
+                            className={`${
+                              distance2 <= 35
+                                ? "text-green-500"
+                                : distance2 < 40
+                                ? "text-yellow-500"
+                                : "text-red-500"
+                            }`}
+                            size={24}
+                          />
+                        </div>
+                        <div className="text-5xl font-bold mt-4 text-yellow-600">
+                          {distance2} <span className="text-2xl">CM</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-3 mt-4">
+                          <div
+                            className={`${
+                              distance1 <= 35
+                                ? "bg-green-500"
+                                : distance1 < 40
+                                ? "bg-yellow-500"
+                                : "bg-red-500"
+                            } h-3 rounded-full transition-all`}
+                            style={{
+                              width: `${
+                                (distance2 / 40) * 100 > 100
+                                  ? 0
+                                  : 100 - (distance2 / 40) * 100
+                              }%`,
+                            }}
+                          ></div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>

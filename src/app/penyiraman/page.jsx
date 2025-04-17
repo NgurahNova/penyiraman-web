@@ -7,6 +7,7 @@ import Footer from "@/components/footer";
 import Navbar from "@/components/navbar";
 import { Collapse } from "react-collapse";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { debounce } from "lodash";
 import {
   Thermometer,
   Droplet,
@@ -34,6 +35,14 @@ const Page = () => {
   const [time, setTime] = useState(new Date().toLocaleTimeString());
   const [searchTodayHistory, setSearchTodayHistory] = useState("");
   const [searchPrevHistory, setSearchPrevHistory] = useState("");
+
+  const handleTodaySearch = debounce((value) => {
+    setSearchTodayHistory(value);
+  }, 300); // 300ms debounce delay
+
+  const handlePrevSearch = debounce((value) => {
+    setSearchPrevHistory(value);
+  }, 300); // 300ms debounce delay
 
   const getTodayDate = () => {
     const today = new Date();
