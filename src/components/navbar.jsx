@@ -61,7 +61,7 @@ const Navbar = () => {
         <div className="flex justify-between h-20">
           <div className="flex items-center">
             <div className="flex-shrink-0 flex items-center">
-              <span className="font-bold text-3xl text-black">
+              <span className="font-bold text-xl md:text-3xl text-black">
                 Smart Farming System
               </span>
             </div>

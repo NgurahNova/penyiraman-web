@@ -89,7 +89,7 @@ const Page = () => {
             }`}
           >
             {/* Header with Welcome Banner */}
-            <div className="bg-gradient-to-r from-green-400 to-blue-500 rounded-2xl shadow-xl mb-8 overflow-hidden">
+            <div className="bg-gradient-to-r from-blue-400 to-green-500 rounded-2xl shadow-xl mb-8 overflow-hidden">
               <div className="flex flex-col md:flex-row justify-between items-center p-6">
                 <div className="text-white mb-4 md:mb-0">
                   <h1 className="text-4xl font-bold">
@@ -143,7 +143,7 @@ const Page = () => {
               </h2>
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 {/* Temperature Card */}
-                <div className="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg border-l-4 border-red-400">
+                <div className="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg border-l-4 border-cyan-400">
                   <div className="p-5">
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-medium text-gray-700">
@@ -182,7 +182,7 @@ const Page = () => {
                           {sensor.replace("sensor_", "Sensor ")}
                         </h3>
                         <div className="bg-blue-100 p-2 rounded-full">
-                          <div className="text-blue-500" size={20} />
+                          <Droplet className="text-blue-500" size={20} />
                         </div>
                       </div>
                       <div
@@ -246,122 +246,109 @@ const Page = () => {
                 </div>
 
                 {/* TDS Card */}
-                <div className="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg border-l-4 border-green-400">
+                <div className="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg border-l-4 border-green-400 ">
                   <div className="p-5">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-medium text-gray-700">
+                      <h3 className="text-lg font-medium text-gray-800">
                         Nilai TDS
                       </h3>
-                      <div className="bg-green-100 p-2 rounded-full">
-                        <FlaskConical className="text-green-500" size={20} />
-                      </div>
+                      <FlaskConical className="text-green-500" size={24} />
                     </div>
                     <div className="text-5xl font-bold mt-4 text-green-600">
-                      {tdsValue} <span className="text-xl">ppm</span>
+                      {tdsValue} <span className="text-2xl">ppm</span>
                     </div>
-                    <div className="mt-4">
-                      <div className="flex justify-between mb-1 text-sm">
-                        <span>Rendah</span>
-                        <span>Optimal</span>
-                        <span>Tinggi</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-3">
-                        <div
-                          className="bg-green-500 h-3 rounded-full"
-                          style={{
-                            width: `${Math.min(100, (tdsValue / 2000) * 100)}%`,
-                          }}
-                        ></div>
-                        <div className="flex justify-between relative -top-3">
-                          <div className="w-px h-3 bg-gray-400"></div>
-                          <div className="w-px h-3 bg-gray-400"></div>
-                          <div className="w-px h-3 bg-gray-400"></div>
-                        </div>
-                      </div>
-                    </div>
+                    <p className="text-gray-600 mt-3 text-sm">
+                      {tdsValue < 560
+                        ? "Nutrisi rendah"
+                        : tdsValue > 900
+                        ? "Nutrisi tinggi"
+                        : "Nutrisi optimal"}
+                    </p>
                   </div>
                 </div>
 
                 {/* Ultrasonic Sensor 1 */}
-                <div className="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg border-l-4 border-amber-400">
+                <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-yellow-200">
                   <div className="p-5">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-medium text-gray-700">
+                      <h3 className="text-lg font-medium text-gray-800">
                         Level Tangki 1
                       </h3>
-                      <div className="bg-amber-100 p-2 rounded-full">
-                        <Ruler className="text-amber-500" size={20} />
-                      </div>
+                      <Ruler
+                        className={`${
+                          distance1 <= 35
+                            ? "text-green-500"
+                            : distance1 < 40
+                            ? "text-yellow-500"
+                            : "text-red-500"
+                        }`}
+                        size={24}
+                      />
                     </div>
-                    <div className="flex items-end mt-4">
-                      <div className="text-5xl font-bold text-amber-600">
-                        {distance1}
-                      </div>
-                      <div className="text-xl ml-2 mb-1 text-gray-500">CM</div>
+                    <div className="text-5xl font-bold mt-4 text-yellow-600">
+                      {distance1} <span className="text-2xl">CM</span>
                     </div>
-                    <div className="relative mt-4 bg-gray-200 h-16 w-full rounded-lg overflow-hidden border border-gray-300">
+                    <div className="w-full bg-gray-200 rounded-full h-3 mt-4">
                       <div
-                        className="absolute bottom-0 left-0 right-0 bg-blue-400 transition-all"
+                        className={`${
+                          distance1 <= 35
+                            ? "bg-green-500"
+                            : distance1 < 40
+                            ? "bg-yellow-500"
+                            : "bg-red-500"
+                        } h-3 rounded-full transition-all`}
                         style={{
-                          height: `${
-                            100 -
-                            ((distance1 / 30) * 100 > 100
-                              ? 100
-                              : (distance1 / 30) * 100)
+                          // Progress bar decreases as distance increases
+                          width: `${
+                            (distance1 / 40) * 100 > 100
+                              ? 0
+                              : 100 - (distance1 / 40) * 100
                           }%`,
                         }}
                       ></div>
-                      <div className="absolute inset-0 flex items-center justify-center text-sm font-bold">
-                        {Math.round(
-                          100 -
-                            ((distance1 / 30) * 100 > 100
-                              ? 100
-                              : (distance1 / 30) * 100)
-                        )}
-                        % Penuh
-                      </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Ultrasonic Sensor 2 */}
-                <div className="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg border-l-4 border-amber-400">
+                <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-yellow-200">
                   <div className="p-5">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-medium text-gray-700">
+                      <h3 className="text-lg font-medium text-gray-800">
                         Level Tangki 2
                       </h3>
-                      <div className="bg-amber-100 p-2 rounded-full">
-                        <Ruler className="text-amber-500" size={20} />
-                      </div>
+                      <Ruler
+                        className={`${
+                          distance2 <= 35
+                            ? "text-green-500"
+                            : distance2 < 40
+                            ? "text-yellow-500"
+                            : "text-red-500"
+                        }`}
+                        size={24}
+                      />
                     </div>
-                    <div className="flex items-end mt-4">
-                      <div className="text-5xl font-bold text-amber-600">
-                        {distance2}
-                      </div>
-                      <div className="text-xl ml-2 mb-1 text-gray-500">CM</div>
+                    <div className="text-5xl font-bold mt-4 text-yellow-600">
+                      {distance2} <span className="text-2xl">CM</span>
                     </div>
-                    <div className="relative mt-4 bg-gray-200 h-16 w-full rounded-lg overflow-hidden border border-gray-300">
+                    <div className="w-full bg-gray-200 rounded-full h-3 mt-4">
                       <div
-                        className="absolute bottom-0 left-0 right-0 bg-blue-400 transition-all"
+                        className={`${
+                          distance1 <= 35
+                            ? "bg-green-500"
+                            : distance1 < 40
+                            ? "bg-yellow-500"
+                            : "bg-red-500"
+                        } h-3 rounded-full transition-all`}
                         style={{
-                          height: `${
-                            100 -
-                            ((distance2 / 30) * 100 > 100
-                              ? 100
-                              : (distance2 / 30) * 100)
+                          // Progress bar decreases as distance increases
+                          width: `${
+                            (distance2 / 40) * 100 > 100
+                              ? 0
+                              : 100 - (distance2 / 40) * 100
                           }%`,
                         }}
                       ></div>
-                      <div className="absolute inset-0 flex items-center justify-center text-sm font-bold">
-                        {Math.round(
-                          100 -
-                            ((distance2 / 30) * 100 > 100
-                              ? 100
-                              : (distance2 / 30) * 100)
-                        )}
-                        % Penuh
-                      </div>
                     </div>
                   </div>
                 </div>

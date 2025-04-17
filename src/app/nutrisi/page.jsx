@@ -170,20 +170,35 @@ const Page = () => {
                     <h3 className="text-lg font-medium text-gray-800">
                       Level Tangki 1
                     </h3>
-                    <Ruler className="text-yellow-500" size={24} />
+                    <Ruler
+                      className={`${
+                        distance1 <= 35
+                          ? "text-green-500"
+                          : distance1 < 40
+                          ? "text-yellow-500"
+                          : "text-red-500"
+                      }`}
+                      size={24}
+                    />
                   </div>
                   <div className="text-5xl font-bold mt-4 text-yellow-600">
                     {distance1} <span className="text-2xl">CM</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-3 mt-4">
                     <div
-                      className="bg-yellow-500 h-3 rounded-full"
+                      className={`${
+                        distance1 <= 35
+                          ? "bg-green-500"
+                          : distance1 < 40
+                          ? "bg-yellow-500"
+                          : "bg-red-500"
+                      } h-3 rounded-full transition-all`}
                       style={{
+                        // Progress bar decreases as distance increases
                         width: `${
-                          100 -
-                          ((distance1 / 30) * 100 > 100
-                            ? 100
-                            : (distance1 / 30) * 100)
+                          (distance1 / 40) * 100 > 100
+                            ? 0
+                            : 100 - (distance1 / 40) * 100
                         }%`,
                       }}
                     ></div>
@@ -198,20 +213,35 @@ const Page = () => {
                     <h3 className="text-lg font-medium text-gray-800">
                       Level Tangki 2
                     </h3>
-                    <Ruler className="text-yellow-500" size={24} />
+                    <Ruler
+                      className={`${
+                        distance2 <= 35
+                          ? "text-green-500"
+                          : distance2 < 40
+                          ? "text-yellow-500"
+                          : "text-red-500"
+                      }`}
+                      size={24}
+                    />
                   </div>
                   <div className="text-5xl font-bold mt-4 text-yellow-600">
                     {distance2} <span className="text-2xl">CM</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-3 mt-4">
                     <div
-                      className="bg-yellow-500 h-3 rounded-full"
+                      className={`${
+                        distance1 <= 35
+                          ? "bg-green-500"
+                          : distance1 < 40
+                          ? "bg-yellow-500"
+                          : "bg-red-500"
+                      } h-3 rounded-full transition-all`}
                       style={{
+                        // Progress bar decreases as distance increases
                         width: `${
-                          100 -
-                          ((distance2 / 30) * 100 > 100
-                            ? 100
-                            : (distance2 / 30) * 100)
+                          (distance2 / 40) * 100 > 100
+                            ? 0
+                            : 100 - (distance2 / 40) * 100
                         }%`,
                       }}
                     ></div>
