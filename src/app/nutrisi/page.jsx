@@ -171,7 +171,7 @@ const Page = () => {
                     <div className="p-5">
                       <div className="flex items-center justify-between">
                         <h3 className="text-lg font-medium text-gray-800">
-                          Level Tangki 1
+                          Level Tangki A
                         </h3>
                         <Ruler
                           className={`${
@@ -213,7 +213,7 @@ const Page = () => {
                     <div className="p-5">
                       <div className="flex items-center justify-between">
                         <h3 className="text-lg font-medium text-gray-800">
-                          Level Tangki 2
+                          Level Tangki B
                         </h3>
                         <Ruler
                           className={`${
@@ -350,7 +350,7 @@ const Page = () => {
                                     </span>
                                   </div>
                                   <div className="text-sm text-gray-700">
-                                    Level Tangki 1:
+                                    Level Tangki A:
                                     <span className="ml-2 text-gray-900 font-medium">
                                       {
                                         historyData[getTodayDate()]?.[time]
@@ -360,7 +360,7 @@ const Page = () => {
                                     </span>
                                   </div>
                                   <div className="text-sm text-gray-700">
-                                    Level Tangki 2:
+                                    Level Tangki B:
                                     <span className="ml-2 text-gray-900 font-medium">
                                       {
                                         historyData[getTodayDate()]?.[time]

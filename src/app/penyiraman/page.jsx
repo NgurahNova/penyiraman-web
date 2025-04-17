@@ -7,7 +7,6 @@ import Footer from "@/components/footer";
 import Navbar from "@/components/navbar";
 import { Collapse } from "react-collapse";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { debounce } from "lodash";
 import {
   Thermometer,
   Droplet,
@@ -35,14 +34,6 @@ const Page = () => {
   const [time, setTime] = useState(new Date().toLocaleTimeString());
   const [searchTodayHistory, setSearchTodayHistory] = useState("");
   const [searchPrevHistory, setSearchPrevHistory] = useState("");
-
-  const handleTodaySearch = debounce((value) => {
-    setSearchTodayHistory(value);
-  }, 300); // 300ms debounce delay
-
-  const handlePrevSearch = debounce((value) => {
-    setSearchPrevHistory(value);
-  }, 300); // 300ms debounce delay
 
   const getTodayDate = () => {
     const today = new Date();
@@ -280,7 +271,7 @@ const Page = () => {
                 <div className="p-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-medium text-gray-800">
-                      Restart Perangkat
+                      Mulai ulang Perangkat
                     </h3>
                     <RefreshCw className="text-red-500" size={24} />
                   </div>
@@ -290,7 +281,7 @@ const Page = () => {
                     </div>
                   </div>
                   <p className="text-gray-500 mt-4 text-sm text-center">
-                    Gunakan tombol ini untuk merestart perangkat
+                    Gunakan tombol ini untuk memulai ulang perangkat
                   </p>
                 </div>
               </div>
