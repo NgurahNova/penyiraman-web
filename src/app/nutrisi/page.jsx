@@ -469,14 +469,14 @@ const Page = () => {
                                         </span>
                                       </div>
                                       <div className="text-sm text-gray-700">
-                                        Level Tangki 1:
+                                        Level A:
                                         <span className="ml-2 text-gray-900 font-medium">
                                           {historyData[date]?.[time]?.distance1}{" "}
                                           CM
                                         </span>
                                       </div>
                                       <div className="text-sm text-gray-700">
-                                        Level Tangki 2:
+                                        Level Tangki B:
                                         <span className="ml-2 text-gray-900 font-medium">
                                           {historyData[date]?.[time]?.distance2}{" "}
                                           CM
