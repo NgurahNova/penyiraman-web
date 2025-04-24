@@ -26,7 +26,7 @@ const TriggerRestart = () => {
       <button
         onClick={toggleRestart}
         className={`px-6 py-3 text-white font-bold rounded-lg transition ${
-          deviceState ? "bg-red-500" : "bg-green-500"
+          deviceState ? "bg-red-500" : "bg-gray-500"
         }`}
       >
         {deviceState ? "Restarting..." : "Restart"}
