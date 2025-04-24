@@ -216,7 +216,7 @@ const Page = () => {
                 <FlaskConical className="mr-2 text-green-500" />
                 <span>Sistem Nutrisi</span>
               </h2>
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+              <div className="lg:grid max-sm:space-y-6 lg:grid-cols-4 gap-6">
                 {/* Water Temperature Card */}
                 <div className="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg border-l-4 border-cyan-400">
                   <div className="p-5">
@@ -238,7 +238,7 @@ const Page = () => {
                     <p className="text-gray-500 mt-2 text-sm">
                       {temperaturetds > 30
                         ? "Suhu air tinggi"
-                        : temperaturetds < 18
+                        : temperaturetds < 15
                         ? "Suhu air rendah"
                         : "Suhu air optimal"}
                     </p>
@@ -278,24 +278,30 @@ const Page = () => {
                           </h3>
                           <Ruler
                             className={`${
-                              distance1 <= 35
+                              distance1 <= 10
                                 ? "text-green-500"
-                                : distance1 < 40
+                                : distance1 < 25
                                 ? "text-yellow-500"
                                 : "text-red-500"
                             }`}
                             size={24}
                           />
                         </div>
-                        <div className="text-5xl font-bold mt-4 text-yellow-600">
+                        <div className={`${
+                              distance1 <= 10
+                                ? "text-green-500"
+                                : distance1 < 25
+                                ? "text-yellow-500"
+                                : "text-red-500"
+                            } text-5xl font-bold mt-4`}>
                           {distance1} <span className="text-2xl">CM</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-3 mt-4">
                           <div
                             className={`${
-                              distance1 <= 35
+                              distance1 <= 10
                                 ? "bg-green-500"
-                                : distance1 < 40
+                                : distance1 < 25
                                 ? "bg-yellow-500"
                                 : "bg-red-500"
                             } h-3 rounded-full transition-all`}
@@ -320,24 +326,30 @@ const Page = () => {
                           </h3>
                           <Ruler
                             className={`${
-                              distance2 <= 35
+                              distance2 <= 10
                                 ? "text-green-500"
-                                : distance2 < 40
+                                : distance2 < 25
                                 ? "text-yellow-500"
                                 : "text-red-500"
                             }`}
                             size={24}
                           />
                         </div>
-                        <div className="text-5xl font-bold mt-4 text-yellow-600">
+                        <div className={`${
+                              distance1 <= 10
+                                ? "text-green-500"
+                                : distance1 < 25
+                                ? "text-yellow-500"
+                                : "text-red-500"
+                            } text-5xl font-bold mt-4`}>
                           {distance2} <span className="text-2xl">CM</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-3 mt-4">
                           <div
                             className={`${
-                              distance1 <= 35
+                              distance1 <= 10
                                 ? "bg-green-500"
-                                : distance1 < 40
+                                : distance1 < 25
                                 ? "bg-yellow-500"
                                 : "bg-red-500"
                             } h-3 rounded-full transition-all`}
