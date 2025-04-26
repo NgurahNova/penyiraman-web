@@ -177,20 +177,22 @@ const Page = () => {
                           className={`${
                             distance1 <= 10
                               ? "text-green-500"
-                              : distance1 < 25
+                              : distance1 <= 30
                               ? "text-yellow-500"
                               : "text-red-500"
                           }`}
                           size={24}
                         />
                       </div>
-                      <div className={`${
-                              distance1 <= 10
-                                ? "text-green-500"
-                                : distance1 < 25
-                                ? "text-yellow-500"
-                                : "text-red-500"
-                            } text-5xl font-bold mt-4`}>
+                      <div
+                        className={`${
+                          distance1 <= 10
+                            ? "text-green-500"
+                            : distance1 <= 30
+                            ? "text-yellow-500"
+                            : "text-red-500"
+                        } text-5xl font-bold mt-4`}
+                      >
                         {distance1} <span className="text-2xl">CM</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-3 mt-4">
@@ -198,7 +200,7 @@ const Page = () => {
                           className={`${
                             distance1 <= 10
                               ? "bg-green-500"
-                              : distance1 < 25
+                              : distance1 <= 30
                               ? "bg-yellow-500"
                               : "bg-red-500"
                           } h-3 rounded-full transition-all`}
@@ -219,34 +221,36 @@ const Page = () => {
                     <div className="p-5">
                       <div className="flex items-center justify-between">
                         <h3 className="text-lg font-medium text-gray-800">
-                          Level Tangki B
+                          Level Tangki A
                         </h3>
                         <Ruler
                           className={`${
                             distance2 <= 10
                               ? "text-green-500"
-                              : distance2 < 25
+                              : distance2 <= 30
                               ? "text-yellow-500"
                               : "text-red-500"
                           }`}
                           size={24}
                         />
                       </div>
-                      <div className={`${
-                              distance1 <= 10
-                                ? "text-green-500"
-                                : distance1 < 25
-                                ? "text-yellow-500"
-                                : "text-red-500"
-                            } text-5xl font-bold mt-4`}>
+                      <div
+                        className={`${
+                          distance2 <= 10
+                            ? "text-green-500"
+                            : distance2 <= 30
+                            ? "text-yellow-500"
+                            : "text-red-500"
+                        } text-5xl font-bold mt-4`}
+                      >
                         {distance2} <span className="text-2xl">CM</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-3 mt-4">
                         <div
                           className={`${
-                            distance1 <= 10
+                            distance2 <= 10
                               ? "bg-green-500"
-                              : distance1 < 25
+                              : distance2 <= 30
                               ? "bg-yellow-500"
                               : "bg-red-500"
                           } h-3 rounded-full transition-all`}
