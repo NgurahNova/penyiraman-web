@@ -10,6 +10,14 @@ import {
   FlaskConical,
   Ruler,
   Cloud,
+  Waves,
+  Container,
+  CheckCircle,
+  AlertCircle,
+  AlertTriangle,
+  ThermometerSun,
+  ThermometerSnowflake,
+  Beaker,
 } from "lucide-react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
@@ -77,6 +85,38 @@ const Page = () => {
     if (value < 18) return "text-blue-600";
     return "text-green-600";
   };
+
+  // Function to determine tank level status
+  const getTankLevelStatus = (distance) => {
+    if (distance <= 10) {
+      return {
+        textColor: "text-green-500",
+        borderColor: "border-green-200",
+        bgColor: "bg-green-500",
+        icon: <CheckCircle className="text-green-500" size={20} />,
+        status: "Level optimal",
+      };
+    } else if (distance < 30) {
+      return {
+        textColor: "text-yellow-500",
+        borderColor: "border-yellow-200",
+        bgColor: "bg-yellow-500",
+        icon: <AlertCircle className="text-yellow-500" size={20} />,
+        status: "Level menengah",
+      };
+    } else {
+      return {
+        textColor: "text-red-500",
+        borderColor: "border-red-200",
+        bgColor: "bg-red-500",
+        icon: <AlertTriangle className="text-red-500" size={20} />,
+        status: "Level rendah",
+      };
+    }
+  };
+
+  const tank1Status = getTankLevelStatus(distance1);
+  const tank2Status = getTankLevelStatus(distance2);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 text-gray-800">
@@ -224,50 +264,115 @@ const Page = () => {
                       <h3 className="text-lg font-medium text-gray-700">
                         Suhu Air
                       </h3>
-                      <div className="bg-cyan-100 p-2 rounded-full">
-                        <Thermometer className="text-cyan-500" size={20} />
-                      </div>
+                      {temperaturetds > 30 ? (
+                        <ThermometerSun className="text-red-500" size={24} />
+                      ) : temperaturetds < 15 ? (
+                        <ThermometerSnowflake
+                          className="text-blue-500"
+                          size={24}
+                        />
+                      ) : (
+                        <Thermometer className="text-green-500" size={24} />
+                      )}
                     </div>
                     <div
-                      className={`text-5xl font-bold mt-4 ${getTemperatureColor(
-                        temperaturetds
-                      )}`}
+                      className={`text-5xl font-bold mt-4 ${
+                        temperaturetds > 30
+                          ? "text-red-600"
+                          : temperaturetds < 15
+                          ? "text-blue-600"
+                          : "text-green-600"
+                      }`}
                     >
                       {temperaturetds}°C
                     </div>
-                    <p className="text-gray-500 mt-2 text-sm">
-                      {temperaturetds > 30
-                        ? "Suhu air tinggi"
-                        : temperaturetds < 15
-                        ? "Suhu air rendah"
-                        : "Suhu air optimal"}
+                    <p className="text-gray-600 mt-3 text-sm flex items-center">
+                      {temperaturetds > 30 ? (
+                        <>
+                          <AlertTriangle
+                            className="mr-1 text-red-500"
+                            size={16}
+                          />
+                          Suhu air tinggi
+                        </>
+                      ) : temperaturetds < 15 ? (
+                        <>
+                          <AlertCircle
+                            className="mr-1 text-blue-500"
+                            size={16}
+                          />
+                          Suhu air rendah
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle
+                            className="mr-1 text-green-500"
+                            size={16}
+                          />
+                          Suhu air optimal
+                        </>
+                      )}
                     </p>
                   </div>
                 </div>
 
                 {/* TDS Card */}
-                <div className="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg border-l-4 border-green-400 ">
+                <div className="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg border-l-4 border-green-400">
                   <div className="p-5">
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-medium text-gray-800">
                         Nilai TDS
                       </h3>
-                      <FlaskConical className="text-green-500" size={24} />
+                      <Beaker className="text-green-500" size={24} />
                     </div>
-                    <div className="text-5xl font-bold mt-4 text-green-600">
+                    <div
+                      className={`text-5xl font-bold mt-4 ${
+                        tdsValue < 560
+                          ? "text-yellow-600"
+                          : tdsValue > 900
+                          ? "text-red-600"
+                          : "text-green-600"
+                      }`}
+                    >
                       {tdsValue} <span className="text-2xl">ppm</span>
                     </div>
-                    <p className="text-gray-600 mt-3 text-sm">
-                      {tdsValue < 560
-                        ? "Nutrisi rendah"
-                        : tdsValue > 900
-                        ? "Nutrisi tinggi"
-                        : "Nutrisi optimal"}
+                    <p className="text-gray-600 mt-3 text-sm flex items-center">
+                      {tdsValue < 560 ? (
+                        <>
+                          <AlertCircle
+                            className="mr-1 text-yellow-500"
+                            size={16}
+                          />
+                          Nutrisi rendah
+                        </>
+                      ) : tdsValue > 900 ? (
+                        <>
+                          <AlertTriangle
+                            className="mr-1 text-red-500"
+                            size={16}
+                          />
+                          Nutrisi tinggi
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle
+                            className="mr-1 text-green-500"
+                            size={16}
+                          />
+                          Nutrisi optimal
+                        </>
+                      )}
                     </p>
                   </div>
                 </div>
-                <div className="bg-white col-span-2 p-4  rounded-xl -full shadow-md borderborder-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg border-l-4 border-green-400">
-                  Tangki A/B MIX
+
+                <div className="bg-white col-span-2 p-4 rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg border-l-4 border-yellow-400">
+                  <div className="flex items-center mb-2">
+                    <Container className="mr-2 text-blue-500" size={20} />
+                    <span className="font-medium text-gray-800">
+                      Tangki A/B MIX
+                    </span>
+                  </div>
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
                     {/* Ultrasonic Sensor 1 */}
                     <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-yellow-200">
@@ -276,39 +381,17 @@ const Page = () => {
                           <h3 className="text-lg font-medium text-gray-800">
                             Level Tangki A
                           </h3>
-                          <Ruler
-                            className={`${
-                              distance1 <= 10
-                                ? "text-green-500"
-                                : distance1 <= 30
-                                ? "text-yellow-500"
-                                : "text-red-500"
-                            }`}
-                            size={24}
-                          />
+                          <Waves className={tank1Status.textColor} size={24} />
                         </div>
                         <div
-                          className={`${
-                            distance1 <= 10
-                              ? "text-green-500"
-                              : distance1 <= 30
-                              ? "text-yellow-500"
-                              : "text-red-500"
-                          } text-5xl font-bold mt-4`}
+                          className={`${tank1Status.textColor} text-5xl font-bold mt-4`}
                         >
                           {distance1} <span className="text-2xl">CM</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-3 mt-4">
                           <div
-                            className={`${
-                              distance1 <= 10
-                                ? "bg-green-500"
-                                : distance1 <= 30
-                                ? "bg-yellow-500"
-                                : "bg-red-500"
-                            } h-3 rounded-full transition-all`}
+                            className={`${tank1Status.bgColor} h-3 rounded-full transition-all`}
                             style={{
-                              // Progress bar decreases as distance increases
                               width: `${
                                 (distance1 / 40) * 100 > 100
                                   ? 0
@@ -317,6 +400,10 @@ const Page = () => {
                             }}
                           ></div>
                         </div>
+                        <p className="text-gray-600 mt-2 text-sm flex items-center">
+                          {tank1Status.icon}
+                          <span className="ml-1">{tank1Status.status}</span>
+                        </p>
                       </div>
                     </div>
                     {/* Ultrasonic Sensor 2 */}
@@ -324,41 +411,19 @@ const Page = () => {
                       <div className="p-5">
                         <div className="flex items-center justify-between">
                           <h3 className="text-lg font-medium text-gray-800">
-                            Level Tangki A
+                            Level Tangki B
                           </h3>
-                          <Ruler
-                            className={`${
-                              distance2 <= 10
-                                ? "text-green-500"
-                                : distance2 <= 30
-                                ? "text-yellow-500"
-                                : "text-red-500"
-                            }`}
-                            size={24}
-                          />
+                          <Waves className={tank2Status.textColor} size={24} />
                         </div>
                         <div
-                          className={`${
-                            distance2 <= 10
-                              ? "text-green-500"
-                              : distance2 <= 30
-                              ? "text-yellow-500"
-                              : "text-red-500"
-                          } text-5xl font-bold mt-4`}
+                          className={`${tank2Status.textColor} text-5xl font-bold mt-4`}
                         >
                           {distance2} <span className="text-2xl">CM</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-3 mt-4">
                           <div
-                            className={`${
-                              distance2 <= 10
-                                ? "bg-green-500"
-                                : distance2 <= 30
-                                ? "bg-yellow-500"
-                                : "bg-red-500"
-                            } h-3 rounded-full transition-all`}
+                            className={`${tank2Status.bgColor} h-3 rounded-full transition-all`}
                             style={{
-                              // Progress bar decreases as distance increases
                               width: `${
                                 (distance2 / 40) * 100 > 100
                                   ? 0
@@ -367,6 +432,10 @@ const Page = () => {
                             }}
                           ></div>
                         </div>
+                        <p className="text-gray-600 mt-2 text-sm flex items-center">
+                          {tank2Status.icon}
+                          <span className="ml-1">{tank2Status.status}</span>
+                        </p>
                       </div>
                     </div>
                   </div>

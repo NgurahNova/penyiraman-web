@@ -35,9 +35,31 @@ const Page = () => {
   const [searchTodayHistory, setSearchTodayHistory] = useState("");
   const [searchPrevHistory, setSearchPrevHistory] = useState("");
 
+  const [currentDate, setCurrentDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+
+  useEffect(() => {
+    const updateDate = () => {
+      const newDate = new Date().toISOString().split("T")[0];
+      if (newDate !== currentDate) {
+        setCurrentDate(newDate);
+      }
+    };
+
+    // Periksa tanggal setiap menit
+    const interval = setInterval(updateDate, 60000);
+
+    // Jalankan sekali saat komponen dimuat untuk menangkap perubahan tanggal
+    updateDate();
+
+    // Bersihkan interval saat komponen dilepas
+    return () => clearInterval(interval);
+  }, [currentDate]);
+
+  // Ganti getTodayDate dengan fungsi yang menggunakan state
   const getTodayDate = () => {
-    const today = new Date();
-    return today.toISOString().split("T")[0];
+    return currentDate;
   };
 
   useEffect(() => {
@@ -88,7 +110,7 @@ const Page = () => {
 
   // Function to filter today's history entries based on search
   const filteredTodayEntries = () => {
-    const entries = sortedTimeEntries(getTodayDate());
+    const entries = sortedTimeEntries(currentDate);
     if (!searchTodayHistory) return entries;
     return entries.filter((time) =>
       time.toLowerCase().includes(searchTodayHistory.toLowerCase())
@@ -97,7 +119,7 @@ const Page = () => {
 
   // Function to filter previous history dates based on search
   const filteredPreviousDates = () => {
-    const dates = sortedHistoryDates.filter((date) => date !== getTodayDate());
+    const dates = sortedHistoryDates.filter((date) => date !== currentDate);
     if (!searchPrevHistory) return dates;
     return dates.filter((date) =>
       date.toLowerCase().includes(searchPrevHistory.toLowerCase())
@@ -125,16 +147,47 @@ const Page = () => {
     const entryData = historyData[date][time];
     return (
       <div className="bg-white p-4 rounded-xl mt-2 text-left shadow-md border border-blue-100">
-        <p className="text-lg flex items-center">
-          <Thermometer className="mr-2 text-red-400" size={20} />
-          <span
-            className={`font-medium ${getTemperatureColor(
-              entryData.temperature
-            )}`}
-          >
-            Temperature: {entryData.temperature}°C
-          </span>
-        </p>
+        <div className="flex items-center justify-between">
+          <p className="text-lg flex items-center">
+            <Thermometer className="mr-2 text-red-400" size={20} />
+            <span
+              className={`font-medium ${getTemperatureColor(
+                entryData.temperature
+              )}`}
+            >
+              Temperature: {entryData.temperature}°C
+            </span>
+          </p>
+          {entryData.event && (
+            <span className="bg-blue-50 text-blue-600 px-3 py-1 rounded-lg text-sm font-medium flex items-center">
+              {entryData.event === "manual_watering_start" && (
+                <>
+                  <Droplet className="mr-1" size={16} />
+                  Manual Watering
+                </>
+              )}
+              {entryData.event === "watering_start" && (
+                <>
+                  <Droplet className="mr-1" size={16} />
+                  Auto Watering
+                </>
+              )}
+              {entryData.event !== "manual_watering_start" &&
+                entryData.event !== "watering_start" &&
+                entryData.event}
+            </span>
+          )}
+        </div>
+
+        {entryData.duration_minutes && (
+          <p className="text-md flex items-center mt-2 text-gray-700">
+            <Clock className="mr-2 text-gray-500" size={18} />
+            <span className="font-medium">
+              Duration: {entryData.duration_minutes} minutes
+            </span>
+          </p>
+        )}
+
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mt-3">
           {Object.keys(entryData.soil_moisture || {}).map((sensor) => (
             <div
@@ -350,7 +403,7 @@ const Page = () => {
                       Riwayat Hari Ini
                     </h3>
                     <span className="text-sm bg-blue-50 text-blue-600 px-2 py-1 rounded-md">
-                      {getTodayDate()}
+                      {currentDate}
                     </span>
                   </div>
 
@@ -400,7 +453,7 @@ const Page = () => {
                             </span>
                           </div>
                           <Collapse isOpened={expandedDate === time}>
-                            {renderTimeEntryData(getTodayDate(), time)}
+                            {renderTimeEntryData(currentDate, time)}
                           </Collapse>
                         </div>
                       ))

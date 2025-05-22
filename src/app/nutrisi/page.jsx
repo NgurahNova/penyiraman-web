@@ -4,14 +4,27 @@ import { database, ref, onValue } from "@/components/firebase";
 import Footer from "@/components/footer";
 import Navbar from "@/components/navbar";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { Sprout } from "lucide-react";
 import {
+  Sprout,
   Thermometer,
   Droplet,
   Clock,
   FlaskConical,
   Ruler,
+  Calendar,
   RefreshCw,
+  AlertTriangle,
+  CheckCircle,
+  AlertCircle,
+  ArrowDown,
+  ArrowUp,
+  Beaker,
+  Container,
+  Waves,
+  BadgeAlert,
+  Bell,
+  ThermometerSnowflake,
+  ThermometerSun,
 } from "lucide-react";
 import { Collapse } from "react-collapse";
 import TriggerRelay from "@/components/triggernutrisi";
@@ -86,12 +99,85 @@ const Page = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Function to determine temperature color
-  const getTemperatureColor = (value) => {
-    if (value > 30) return "text-red-600";
-    if (value < 18) return "text-blue-600";
-    return "text-green-600";
+  // Function to determine temperature color and icon
+  const getTemperatureColorAndIcon = (value) => {
+    if (value > 30) {
+      return {
+        textColor: "text-red-600",
+        icon: <ThermometerSun className="text-red-500" size={24} />,
+      };
+    }
+    if (value < 18) {
+      return {
+        textColor: "text-blue-600",
+        icon: <ThermometerSnowflake className="text-blue-500" size={24} />,
+      };
+    }
+    return {
+      textColor: "text-green-600",
+      icon: <Thermometer className="text-green-500" size={24} />,
+    };
   };
+
+  // Function to determine TDS status, color and icon
+  const getTdsStatusColorAndIcon = (value) => {
+    if (value < 560) {
+      return {
+        status: "Nutrisi rendah",
+        textColor: "text-yellow-600",
+        icon: <ArrowDown className="text-yellow-500" size={24} />,
+        bgColor: "bg-yellow-500",
+      };
+    }
+    if (value > 900) {
+      return {
+        status: "Nutrisi tinggi",
+        textColor: "text-red-600",
+        icon: <ArrowUp className="text-red-500" size={24} />,
+        bgColor: "bg-red-500",
+      };
+    }
+    return {
+      status: "Nutrisi optimal",
+      textColor: "text-green-600",
+      icon: <CheckCircle className="text-green-500" size={24} />,
+      bgColor: "bg-green-500",
+    };
+  };
+
+  // Function to determine tank level status
+  const getTankLevelStatus = (distance) => {
+    if (distance <= 10) {
+      return {
+        textColor: "text-green-500",
+        borderColor: "border-green-200",
+        bgColor: "bg-green-500",
+        icon: <CheckCircle className="text-green-500" size={20} />,
+        status: "Level optimal",
+      };
+    } else if (distance <  30) {
+      return {
+        textColor: "text-yellow-500",
+        borderColor: "border-yellow-200",
+        bgColor: "bg-yellow-500",
+        icon: <AlertCircle className="text-yellow-500" size={20} />,
+        status: "Level menengah",
+      };
+    } else {
+      return {
+        textColor: "text-red-500",
+        borderColor: "border-red-200",
+        bgColor: "bg-red-500",
+        icon: <AlertTriangle className="text-red-500" size={20} />,
+        status: "Level rendah",
+      };
+    }
+  };
+
+  const tempDetails = getTemperatureColorAndIcon(temperaturetds);
+  const tdsDetails = getTdsStatusColorAndIcon(tdsValue);
+  const tank1Status = getTankLevelStatus(distance1);
+  const tank2Status = getTankLevelStatus(distance2);
 
   return (
     <div className="bg-gray-50 text-gray-900">
@@ -105,7 +191,10 @@ const Page = () => {
           >
             {/* Nutrisi Section */}
             <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
-              <h1 className="text-3xl font-bold ">Nutrisi</h1>
+              <h1 className="text-3xl font-bold flex items-center">
+                <Sprout className="mr-2 text-green-500" size={28} />
+                Nutrisi
+              </h1>
               <div className="flex md:items-center w-fit mt-4 md:mt-0 bg-white px-4 py-2 rounded-lg shadow-md border border-gray-100">
                 <Clock className="mr-2 text-blue-500" />
                 <span className="text-xl font-medium text-gray-800">
@@ -122,21 +211,36 @@ const Page = () => {
                     <h3 className="text-lg font-medium text-gray-800">
                       Suhu Air
                     </h3>
-                    <Thermometer className="text-blue-500" size={24} />
+                    {tempDetails.icon}
                   </div>
                   <div
-                    className={`text-5xl font-bold mt-4 ${getTemperatureColor(
-                      temperaturetds
-                    )}`}
+                    className={`text-5xl font-bold mt-4 ${tempDetails.textColor}`}
                   >
                     {temperaturetds}°C
                   </div>
-                  <p className="text-gray-600 mt-3 text-sm">
-                    {temperaturetds > 30
-                      ? "Suhu air tinggi"
-                      : temperaturetds < 15
-                      ? "Suhu air rendah"
-                      : "Suhu air optimal"}
+                  <p className="text-gray-600 mt-3 text-sm flex items-center">
+                    {temperaturetds > 30 ? (
+                      <>
+                        <AlertTriangle
+                          className="mr-1 text-red-500"
+                          size={16}
+                        />
+                        Suhu air tinggi
+                      </>
+                    ) : temperaturetds < 15 ? (
+                      <>
+                        <AlertCircle className="mr-1 text-blue-500" size={16} />
+                        Suhu air rendah
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle
+                          className="mr-1 text-green-500"
+                          size={16}
+                        />
+                        Suhu air optimal
+                      </>
+                    )}
                   </p>
                 </div>
               </div>
@@ -148,23 +252,27 @@ const Page = () => {
                     <h3 className="text-lg font-medium text-gray-800">
                       Nilai TDS
                     </h3>
-                    <FlaskConical className="text-green-500" size={24} />
+                    <Beaker className="text-green-500" size={24} />
                   </div>
-                  <div className="text-5xl font-bold mt-4 text-green-600">
+                  <div
+                    className={`text-5xl font-bold mt-4 ${tdsDetails.textColor}`}
+                  >
                     {tdsValue} <span className="text-2xl">ppm</span>
                   </div>
-                  <p className="text-gray-600 mt-3 text-sm">
-                    {tdsValue < 560
-                      ? "Nutrisi rendah"
-                      : tdsValue > 900
-                      ? "Nutrisi tinggi"
-                      : "Nutrisi optimal"}
+                  <p className="text-gray-600 mt-3 text-sm flex items-center">
+                    {tdsDetails.icon}
+                    <span className="ml-1">{tdsDetails.status}</span>
                   </p>
                 </div>
               </div>
 
-              <div className="bg-white  col-span-2 p-4  rounded-xl -full shadow-md borderborder-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-yellow-200">
-                Tangki A/B MIX
+              <div className="bg-white col-span-2 p-4 rounded-xl shadow-md border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-yellow-200">
+                <div className="flex items-center">
+                  <Container className="mr-2 text-blue-500" size={20} />
+                  <span className="font-medium text-gray-800">
+                    Tangki A/B MIX
+                  </span>
+                </div>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
                   {/* Ultrasonic Sensor 1 */}
                   <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-yellow-200">
@@ -173,39 +281,17 @@ const Page = () => {
                         <h3 className="text-lg font-medium text-gray-800">
                           Level Tangki A
                         </h3>
-                        <Ruler
-                          className={`${
-                            distance1 <= 10
-                              ? "text-green-500"
-                              : distance1 <= 30
-                              ? "text-yellow-500"
-                              : "text-red-500"
-                          }`}
-                          size={24}
-                        />
+                        <Waves className={tank1Status.textColor} size={24} />
                       </div>
                       <div
-                        className={`${
-                          distance1 <= 10
-                            ? "text-green-500"
-                            : distance1 <= 30
-                            ? "text-yellow-500"
-                            : "text-red-500"
-                        } text-5xl font-bold mt-4`}
+                        className={`${tank1Status.textColor} text-5xl font-bold mt-4`}
                       >
                         {distance1} <span className="text-2xl">CM</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-3 mt-4">
                         <div
-                          className={`${
-                            distance1 <= 10
-                              ? "bg-green-500"
-                              : distance1 <= 30
-                              ? "bg-yellow-500"
-                              : "bg-red-500"
-                          } h-3 rounded-full transition-all`}
+                          className={`${tank1Status.bgColor} h-3 rounded-full transition-all`}
                           style={{
-                            // Progress bar decreases as distance increases
                             width: `${
                               (distance1 / 40) * 100 > 100
                                 ? 0
@@ -214,6 +300,10 @@ const Page = () => {
                           }}
                         ></div>
                       </div>
+                      <p className="text-gray-600 mt-2 text-sm flex items-center">
+                        {tank1Status.icon}
+                        <span className="ml-1">{tank1Status.status}</span>
+                      </p>
                     </div>
                   </div>
                   {/* Ultrasonic Sensor 2 */}
@@ -221,41 +311,19 @@ const Page = () => {
                     <div className="p-5">
                       <div className="flex items-center justify-between">
                         <h3 className="text-lg font-medium text-gray-800">
-                          Level Tangki A
+                          Level Tangki B
                         </h3>
-                        <Ruler
-                          className={`${
-                            distance2 <= 10
-                              ? "text-green-500"
-                              : distance2 <= 30
-                              ? "text-yellow-500"
-                              : "text-red-500"
-                          }`}
-                          size={24}
-                        />
+                        <Waves className={tank2Status.textColor} size={24} />
                       </div>
                       <div
-                        className={`${
-                          distance2 <= 10
-                            ? "text-green-500"
-                            : distance2 <= 30
-                            ? "text-yellow-500"
-                            : "text-red-500"
-                        } text-5xl font-bold mt-4`}
+                        className={`${tank2Status.textColor} text-5xl font-bold mt-4`}
                       >
                         {distance2} <span className="text-2xl">CM</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-3 mt-4">
                         <div
-                          className={`${
-                            distance2 <= 10
-                              ? "bg-green-500"
-                              : distance2 <= 30
-                              ? "bg-yellow-500"
-                              : "bg-red-500"
-                          } h-3 rounded-full transition-all`}
+                          className={`${tank2Status.bgColor} h-3 rounded-full transition-all`}
                           style={{
-                            // Progress bar decreases as distance increases
                             width: `${
                               (distance2 / 40) * 100 > 100
                                 ? 0
@@ -264,6 +332,10 @@ const Page = () => {
                           }}
                         ></div>
                       </div>
+                      <p className="text-gray-600 mt-2 text-sm flex items-center">
+                        {tank2Status.icon}
+                        <span className="ml-1">{tank2Status.status}</span>
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -283,7 +355,8 @@ const Page = () => {
                       <TriggerRestart />
                     </div>
                   </div>
-                  <p className="text-gray-600 mt-4 text-sm text-center">
+                  <p className="text-gray-600 mt-4 text-sm text-center flex items-center justify-center">
+                    <AlertCircle className="mr-1 text-red-500" size={16} />
                     Gunakan tombol ini untuk merestart perangkat
                   </p>
                 </div>
@@ -296,14 +369,15 @@ const Page = () => {
                     <h3 className="text-lg font-medium text-gray-800">
                       Kontrol Nutrisi Manual
                     </h3>
-                    <Sprout className="text-green-500" size={24} />
+                    <Droplet className="text-green-500" size={24} />
                   </div>
                   <div className="mt-4 flex justify-center">
                     <div className="scale-110">
                       <TriggerRelay />
                     </div>
                   </div>
-                  <p className="text-gray-600 mt-4 text-sm text-center">
+                  <p className="text-gray-600 mt-4 text-sm text-center flex items-center justify-center">
+                    <Bell className="mr-1 text-green-500" size={16} />
                     Gunakan tombol ini untuk mengaktifkan pompa nutrisi
                   </p>
                 </div>
@@ -321,7 +395,8 @@ const Page = () => {
                 <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-blue-200">
                   <div className="p-5">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-medium text-gray-800">
+                      <h3 className="text-lg font-medium text-gray-800 flex items-center">
+                        <BadgeAlert className="mr-2 text-blue-500" size={20} />
                         Riwayat Hari Ini
                       </h3>
                     </div>
@@ -333,7 +408,11 @@ const Page = () => {
                               className="cursor-pointer bg-gray-50 p-3 rounded-lg text-left flex justify-between items-center border border-gray-200"
                               onClick={() => toggleDate(time)}
                             >
-                              <span className="font-medium text-gray-800">
+                              <span className="font-medium text-gray-800 flex items-center">
+                                <Clock
+                                  className="mr-2 text-blue-500"
+                                  size={16}
+                                />
                                 {time}
                               </span>
                               <span className="text-xs bg-white px-3 py-1 rounded-full border border-gray-200 text-blue-600">
@@ -345,9 +424,23 @@ const Page = () => {
                             <Collapse isOpened={expandedDate === time}>
                               <div className="bg-gray-50 p-4 rounded-b-lg mt-1 text-left border-x border-b border-gray-200">
                                 <div className="grid grid-cols-2 gap-3">
-                                  <div className="text-sm text-gray-700">
+                                  <div className="text-sm text-gray-700 flex items-center">
+                                    <Thermometer
+                                      className="mr-1 text-blue-500"
+                                      size={14}
+                                    />
                                     Suhu Air:
-                                    <span className="ml-2 text-gray-900 font-medium">
+                                    <span
+                                      className={`ml-2 font-medium ${
+                                        historyData[getTodayDate()]?.[time]
+                                          ?.temperaturetds > 30
+                                          ? "text-red-600"
+                                          : historyData[getTodayDate()]?.[time]
+                                              ?.temperaturetds < 15
+                                          ? "text-blue-600"
+                                          : "text-green-600"
+                                      }`}
+                                    >
                                       {
                                         historyData[getTodayDate()]?.[time]
                                           ?.temperaturetds
@@ -355,9 +448,23 @@ const Page = () => {
                                       °C
                                     </span>
                                   </div>
-                                  <div className="text-sm text-gray-700">
+                                  <div className="text-sm text-gray-700 flex items-center">
+                                    <Beaker
+                                      className="mr-1 text-green-500"
+                                      size={14}
+                                    />
                                     TDS:
-                                    <span className="ml-2 text-gray-900 font-medium">
+                                    <span
+                                      className={`ml-2 font-medium ${
+                                        historyData[getTodayDate()]?.[time]
+                                          ?.tdsValue < 560
+                                          ? "text-yellow-600"
+                                          : historyData[getTodayDate()]?.[time]
+                                              ?.tdsValue > 900
+                                          ? "text-red-600"
+                                          : "text-green-600"
+                                      }`}
+                                    >
                                       {
                                         historyData[getTodayDate()]?.[time]
                                           ?.tdsValue
@@ -365,9 +472,23 @@ const Page = () => {
                                       PPM
                                     </span>
                                   </div>
-                                  <div className="text-sm text-gray-700">
+                                  <div className="text-sm text-gray-700 flex items-center">
+                                    <Container
+                                      className="mr-1 text-yellow-500"
+                                      size={14}
+                                    />
                                     Level Tangki A:
-                                    <span className="ml-2 text-gray-900 font-medium">
+                                    <span
+                                      className={`ml-2 font-medium ${
+                                        historyData[getTodayDate()]?.[time]
+                                          ?.distance1 <= 10
+                                          ? "text-green-600"
+                                          : historyData[getTodayDate()]?.[time]
+                                              ?.distance1 <= 30
+                                          ? "text-yellow-600"
+                                          : "text-red-600"
+                                      }`}
+                                    >
                                       {
                                         historyData[getTodayDate()]?.[time]
                                           ?.distance1
@@ -375,9 +496,23 @@ const Page = () => {
                                       CM
                                     </span>
                                   </div>
-                                  <div className="text-sm text-gray-700">
+                                  <div className="text-sm text-gray-700 flex items-center">
+                                    <Container
+                                      className="mr-1 text-yellow-500"
+                                      size={14}
+                                    />
                                     Level Tangki B:
-                                    <span className="ml-2 text-gray-900 font-medium">
+                                    <span
+                                      className={`ml-2 font-medium ${
+                                        historyData[getTodayDate()]?.[time]
+                                          ?.distance2 <= 10
+                                          ? "text-green-600"
+                                          : historyData[getTodayDate()]?.[time]
+                                              ?.distance2 <= 30
+                                          ? "text-yellow-600"
+                                          : "text-red-600"
+                                      }`}
+                                    >
                                       {
                                         historyData[getTodayDate()]?.[time]
                                           ?.distance2
@@ -385,7 +520,11 @@ const Page = () => {
                                       CM
                                     </span>
                                   </div>
-                                  <div className="text-sm text-gray-700">
+                                  <div className="text-sm text-gray-700 flex items-center">
+                                    <Droplet
+                                      className="mr-1 text-blue-500"
+                                      size={14}
+                                    />
                                     Relay A:
                                     <span
                                       className={`ml-2 font-medium ${
@@ -401,7 +540,11 @@ const Page = () => {
                                         : "OFF"}
                                     </span>
                                   </div>
-                                  <div className="text-sm text-gray-700">
+                                  <div className="text-sm text-gray-700 flex items-center">
+                                    <Droplet
+                                      className="mr-1 text-blue-500"
+                                      size={14}
+                                    />
                                     Relay B:
                                     <span
                                       className={`ml-2 font-medium ${
@@ -435,7 +578,8 @@ const Page = () => {
                 <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-blue-200">
                   <div className="p-5">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-medium text-gray-800">
+                      <h3 className="text-lg font-medium text-gray-800 flex items-center">
+                        <BadgeAlert className="mr-2 text-blue-500" size={20} />
                         Semua Riwayat
                       </h3>
                     </div>
@@ -447,7 +591,11 @@ const Page = () => {
                               className="cursor-pointer bg-gray-50 p-3 rounded-lg text-left flex justify-between items-center border border-gray-200"
                               onClick={() => toggleDate(date)}
                             >
-                              <span className="font-medium text-gray-800">
+                              <span className="font-medium text-gray-800 flex items-center">
+                                <Calendar
+                                  className="mr-2 text-blue-500"
+                                  size={16}
+                                />
                                 {date}
                               </span>
                               <span className="text-xs bg-white px-3 py-1 rounded-full border border-gray-200 text-blue-600">
@@ -463,13 +611,31 @@ const Page = () => {
                                     key={time}
                                     className="bg-white p-3 rounded-lg mt-2 text-left border border-gray-200"
                                   >
-                                    <div className="text-sm font-bold border-b border-gray-200 pb-2 mb-3 text-blue-600">
+                                    <div className="text-sm font-bold border-b border-gray-200 pb-2 mb-3 text-blue-600 flex items-center">
+                                      <Clock
+                                        className="mr-1 text-blue-500"
+                                        size={14}
+                                      />
                                       {time}
                                     </div>
                                     <div className="grid grid-cols-2 gap-3">
-                                      <div className="text-sm text-gray-700">
+                                      <div className="text-sm text-gray-700 flex items-center">
+                                        <Thermometer
+                                          className="mr-1 text-blue-500"
+                                          size={14}
+                                        />
                                         Suhu Air:
-                                        <span className="ml-2 text-gray-900 font-medium">
+                                        <span
+                                          className={`ml-2 font-medium ${
+                                            historyData[date]?.[time]
+                                              ?.temperaturetds > 30
+                                              ? "text-red-600"
+                                              : historyData[date]?.[time]
+                                                  ?.temperaturetds < 15
+                                              ? "text-blue-600"
+                                              : "text-green-600"
+                                          }`}
+                                        >
                                           {
                                             historyData[date]?.[time]
                                               ?.temperaturetds
@@ -477,28 +643,74 @@ const Page = () => {
                                           °C
                                         </span>
                                       </div>
-                                      <div className="text-sm text-gray-700">
+                                      <div className="text-sm text-gray-700 flex items-center">
+                                        <Beaker
+                                          className="mr-1 text-green-500"
+                                          size={14}
+                                        />
                                         TDS:
-                                        <span className="ml-2 text-gray-900 font-medium">
+                                        <span
+                                          className={`ml-2 font-medium ${
+                                            historyData[date]?.[time]
+                                              ?.tdsValue < 560
+                                              ? "text-yellow-600"
+                                              : historyData[date]?.[time]
+                                                  ?.tdsValue > 900
+                                              ? "text-red-600"
+                                              : "text-green-600"
+                                          }`}
+                                        >
                                           {historyData[date]?.[time]?.tdsValue}{" "}
                                           PPM
                                         </span>
                                       </div>
-                                      <div className="text-sm text-gray-700">
+                                      <div className="text-sm text-gray-700 flex items-center">
+                                        <Container
+                                          className="mr-1 text-yellow-500"
+                                          size={14}
+                                        />
                                         Level A:
-                                        <span className="ml-2 text-gray-900 font-medium">
+                                        <span
+                                          className={`ml-2 font-medium ${
+                                            historyData[date]?.[time]
+                                              ?.distance1 <= 10
+                                              ? "text-green-600"
+                                              : historyData[date]?.[time]
+                                                  ?.distance1 <= 30
+                                              ? "text-yellow-600"
+                                              : "text-red-600"
+                                          }`}
+                                        >
                                           {historyData[date]?.[time]?.distance1}{" "}
                                           CM
                                         </span>
                                       </div>
-                                      <div className="text-sm text-gray-700">
+                                      <div className="text-sm text-gray-700 flex items-center">
+                                        <Container
+                                          className="mr-1 text-yellow-500"
+                                          size={14}
+                                        />
                                         Level Tangki B:
-                                        <span className="ml-2 text-gray-900 font-medium">
+                                        <span
+                                          className={`ml-2 font-medium ${
+                                            historyData[date]?.[time]
+                                              ?.distance2 <= 10
+                                              ? "text-green-600"
+                                              : historyData[date]?.[time]
+                                                  ?.distance2 <= 30
+                                              ? "text-yellow-600"
+                                              : "text-red-600"
+                                          }`}
+                                        >
                                           {historyData[date]?.[time]?.distance2}{" "}
                                           CM
                                         </span>
                                       </div>
-                                      <div className="text-sm text-gray-700">
+                                      <div className="text-sm text-gray-700 flex items-center">
+                                        <Droplet
+                                          className="mr-1 text-blue-500"
+                                          size={14}
+                                        />
                                         Relay A:
                                         <span
                                           className={`ml-2 font-medium ${
@@ -512,7 +724,11 @@ const Page = () => {
                                             : "OFF"}
                                         </span>
                                       </div>
-                                      <div className="text-sm text-gray-700">
+                                      <div className="text-sm text-gray-700 flex items-center">
+                                        <Droplet
+                                          className="mr-1 text-blue-500"
+                                          size={14}
+                                        />
                                         Relay B:
                                         <span
                                           className={`ml-2 font-medium ${
