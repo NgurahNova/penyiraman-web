@@ -1,6 +1,7 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { database, ref, onValue } from "@/components/firebase";
+import { update } from "firebase/database";
 import Footer from "@/components/footer";
 import Navbar from "@/components/navbar";
 import {
@@ -36,6 +37,8 @@ const Page = () => {
   const [distance2, setDistance2] = useState(0);
   const [tdsValue, setTdsValue] = useState(0);
   const [temperaturetds, setTemperatureTds] = useState(0);
+  const [threshold, setThreshold] = useState("");
+  const inputRef = useRef(null);
 
   useEffect(() => {
     const dataRef = ref(database, "realtime_data");
@@ -72,6 +75,60 @@ const Page = () => {
     return () => clearInterval(interval);
   }, []);
 
+      useEffect(() => {
+    const thresholdRef = ref(database, "MonitoringNutrisi/controlIoT/threshold");
+    onValue(thresholdRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data !== null) {
+        setThreshold(data);
+      }
+    });
+  }, []);
+  
+  const handleThresholdSave = () => {
+    const newValue = parseInt(inputRef.current.value);
+    if (!isNaN(newValue)) {
+      const thresholdRef = ref(database, "MonitoringNutrisi/controlIoT");
+      update(thresholdRef, { threshold: newValue });
+    }
+  };
+
+    const levelA = Math.min(distance1, threshold);
+    const levelB = Math.min(distance2, threshold);
+  
+    const getTankLevelStatus = (distance) => {
+      const level = Math.min(distance, threshold);
+      const percentage = (level / threshold) * 100;
+      if (percentage > 70) {
+        return {
+          textColor: "text-red-500",
+          borderColor: "border-red-200",
+          bgColor: "bg-red-500",
+          icon: <AlertTriangle className="text-red-500" size={20} />,
+          status: "Level Rendah",
+        };
+      } else if (percentage > 30) {
+        return {
+          textColor: "text-yellow-500",
+          borderColor: "border-yellow-200",
+          bgColor: "bg-yellow-500",
+          icon: <AlertCircle className="text-yellow-500" size={20} />,
+          status: "Level menengah",
+        };
+      } else {
+        return {
+          textColor: "text-green-500",
+          borderColor: "border-green-200",
+          bgColor: "bg-green-500",
+          icon: <CheckCircle className="text-green-500" size={20} />,
+          status: "Level Optimal",
+        };
+      }
+    };
+
+    const tank1Status = getTankLevelStatus(distance1);
+    const tank2Status = getTankLevelStatus(distance2);
+
   // Function to determine moisture level color
   const getMoistureColor = (value) => {
     if (value < 30) return "text-red-600";
@@ -86,37 +143,6 @@ const Page = () => {
     return "text-green-600";
   };
 
-  // Function to determine tank level status
-  const getTankLevelStatus = (distance) => {
-    if (distance <= 10) {
-      return {
-        textColor: "text-green-500",
-        borderColor: "border-green-200",
-        bgColor: "bg-green-500",
-        icon: <CheckCircle className="text-green-500" size={20} />,
-        status: "Level optimal",
-      };
-    } else if (distance < 30) {
-      return {
-        textColor: "text-yellow-500",
-        borderColor: "border-yellow-200",
-        bgColor: "bg-yellow-500",
-        icon: <AlertCircle className="text-yellow-500" size={20} />,
-        status: "Level menengah",
-      };
-    } else {
-      return {
-        textColor: "text-red-500",
-        borderColor: "border-red-200",
-        bgColor: "bg-red-500",
-        icon: <AlertTriangle className="text-red-500" size={20} />,
-        status: "Level rendah",
-      };
-    }
-  };
-
-  const tank1Status = getTankLevelStatus(distance1);
-  const tank2Status = getTankLevelStatus(distance2);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 text-gray-800">
@@ -366,15 +392,15 @@ const Page = () => {
                   </div>
                 </div>
 
-                <div className="bg-white col-span-2 p-4 rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg border-l-4 border-yellow-400">
-                  <div className="flex items-center mb-2">
+                <div className="bg-white col-span-2 p-4 rounded-xl shadow-md border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-yellow-200">
+                  <div className="flex items-center">
                     <Container className="mr-2 text-blue-500" size={20} />
                     <span className="font-medium text-gray-800">
-                      Tangki A/B MIX
+                      Tangki Nutrisi
                     </span>
                   </div>
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
-                    {/* Ultrasonic Sensor 1 */}
+                    {/* Tangki A */}
                     <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-yellow-200">
                       <div className="p-5">
                         <div className="flex items-center justify-between">
@@ -383,19 +409,15 @@ const Page = () => {
                           </h3>
                           <Waves className={tank1Status.textColor} size={24} />
                         </div>
-                        <div
-                          className={`${tank1Status.textColor} text-5xl font-bold mt-4`}
-                        >
-                          {distance1} <span className="text-2xl">CM</span>
+                        <div className={`${tank1Status.textColor} text-5xl font-bold mt-4`}>
+                          {Math.min(distance1, threshold)} <span className="text-2xl">CM</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-3 mt-4">
                           <div
                             className={`${tank1Status.bgColor} h-3 rounded-full transition-all`}
                             style={{
                               width: `${
-                                (distance1 / 40) * 100 > 100
-                                  ? 0
-                                  : 100 - (distance1 / 40) * 100
+                                Math.min((distance1 / threshold) * 100, 100)
                               }%`,
                             }}
                           ></div>
@@ -406,7 +428,8 @@ const Page = () => {
                         </p>
                       </div>
                     </div>
-                    {/* Ultrasonic Sensor 2 */}
+    
+                    {/* Tangki B */}
                     <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-yellow-200">
                       <div className="p-5">
                         <div className="flex items-center justify-between">
@@ -415,19 +438,15 @@ const Page = () => {
                           </h3>
                           <Waves className={tank2Status.textColor} size={24} />
                         </div>
-                        <div
-                          className={`${tank2Status.textColor} text-5xl font-bold mt-4`}
-                        >
-                          {distance2} <span className="text-2xl">CM</span>
+                        <div className={`${tank2Status.textColor} text-5xl font-bold mt-4`}>
+                          {Math.min(distance2, threshold)} <span className="text-2xl">CM</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-3 mt-4">
                           <div
                             className={`${tank2Status.bgColor} h-3 rounded-full transition-all`}
                             style={{
                               width: `${
-                                (distance2 / 40) * 100 > 100
-                                  ? 0
-                                  : 100 - (distance2 / 40) * 100
+                                Math.min((distance2 / threshold) * 100, 100)
                               }%`,
                             }}
                           ></div>
