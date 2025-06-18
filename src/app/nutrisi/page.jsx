@@ -1,9 +1,11 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { database, ref, onValue } from "@/components/firebase";
+import { update } from "firebase/database";
 import Footer from "@/components/footer";
 import Navbar from "@/components/navbar";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { Wifi, WifiOff } from "lucide-react";
 import {
   Sprout,
   Thermometer,
@@ -42,6 +44,10 @@ const Page = () => {
   const [historyData, setHistoryData] = useState({});
   const [expandedDate, setExpandedDate] = useState(null);
   const [time, setTime] = useState(new Date().toLocaleTimeString());
+  const [threshold, setThreshold] = useState("");
+  const inputRef = useRef(null);
+  const [lastUpdateTime, setLastUpdateTime] = useState(Date.now());
+  const [isDeviceOnline, setIsDeviceOnline] = useState(true);
 
   // Get today's date in YYYY-MM-DD format
   const getTodayDate = () => {
@@ -60,11 +66,25 @@ const Page = () => {
         setRelayB(data.relayB);
         setTdsValue(data.tdsValue);
         setTemperatureTds(data.temperaturetds);
+        setLastUpdateTime(Date.now());
+        setIsDeviceOnline(true);
       }
     });
 
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+  const interval = setInterval(() => {
+    const now = Date.now();
+    if (now - lastUpdateTime > 60000) {
+      setIsDeviceOnline(false);
+    } else {
+      setIsDeviceOnline(true);
+    }
+  }, 10000);
+  return () => clearInterval(interval);
+}, [lastUpdateTime]);
 
   // Fetch historical data from Firebase
   useEffect(() => {
@@ -76,6 +96,57 @@ const Page = () => {
       }
     });
   }, []);
+  
+    useEffect(() => {
+  const thresholdRef = ref(database, "MonitoringNutrisi/controlIoT/threshold");
+  onValue(thresholdRef, (snapshot) => {
+    const data = snapshot.val();
+    if (data !== null) {
+      setThreshold(data);
+    }
+  });
+}, []);
+
+const handleThresholdSave = () => {
+  const newValue = parseInt(inputRef.current.value);
+  if (!isNaN(newValue)) {
+    const thresholdRef = ref(database, "MonitoringNutrisi/controlIoT");
+    update(thresholdRef, { threshold: newValue });
+  }
+};
+
+  const levelA = Math.min(distance1, threshold);
+  const levelB = Math.min(distance2, threshold);
+
+  const getTankLevelStatus = (distance) => {
+    const level = Math.min(distance, threshold);
+    const percentage = (level / threshold) * 100;
+    if (percentage > 70) {
+      return {
+        textColor: "text-red-500",
+        borderColor: "border-red-200",
+        bgColor: "bg-red-500",
+        icon: <AlertTriangle className="text-red-500" size={20} />,
+        status: "Level Rendah",
+      };
+    } else if (percentage > 30) {
+      return {
+        textColor: "text-yellow-500",
+        borderColor: "border-yellow-200",
+        bgColor: "bg-yellow-500",
+        icon: <AlertCircle className="text-yellow-500" size={20} />,
+        status: "Level menengah",
+      };
+    } else {
+      return {
+        textColor: "text-green-500",
+        borderColor: "border-green-200",
+        bgColor: "bg-green-500",
+        icon: <CheckCircle className="text-green-500" size={20} />,
+        status: "Level Optimal",
+      };
+    }
+  };
 
   // Toggle the date collapse
   const toggleDate = (date) => {
@@ -145,35 +216,6 @@ const Page = () => {
     };
   };
 
-  // Function to determine tank level status
-  const getTankLevelStatus = (distance) => {
-    if (distance <= 10) {
-      return {
-        textColor: "text-green-500",
-        borderColor: "border-green-200",
-        bgColor: "bg-green-500",
-        icon: <CheckCircle className="text-green-500" size={20} />,
-        status: "Level optimal",
-      };
-    } else if (distance <  30) {
-      return {
-        textColor: "text-yellow-500",
-        borderColor: "border-yellow-200",
-        bgColor: "bg-yellow-500",
-        icon: <AlertCircle className="text-yellow-500" size={20} />,
-        status: "Level menengah",
-      };
-    } else {
-      return {
-        textColor: "text-red-500",
-        borderColor: "border-red-200",
-        bgColor: "bg-red-500",
-        icon: <AlertTriangle className="text-red-500" size={20} />,
-        status: "Level rendah",
-      };
-    }
-  };
-
   const tempDetails = getTemperatureColorAndIcon(temperaturetds);
   const tdsDetails = getTdsStatusColorAndIcon(tdsValue);
   const tank1Status = getTankLevelStatus(distance1);
@@ -190,18 +232,43 @@ const Page = () => {
             }`}
           >
             {/* Nutrisi Section */}
-            <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
-              <h1 className="text-3xl font-bold flex items-center">
-                <Sprout className="mr-2 text-green-500" size={28} />
-                Nutrisi
-              </h1>
-              <div className="flex md:items-center w-fit mt-4 md:mt-0 bg-white px-4 py-2 rounded-lg shadow-md border border-gray-100">
-                <Clock className="mr-2 text-blue-500" />
-                <span className="text-xl font-medium text-gray-800">
-                  {time}
-                </span>
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
+                {/* Kiri: Judul dan Status */}
+                <div className="flex flex-col md:flex-row md:items-center gap-4">
+                  <h1 className="text-3xl font-bold flex items-center">
+                    <Sprout className="mr-2 text-green-500" size={28} />
+                    Nutrisi
+                  </h1>
+                  {/* Notifikasi Status Perangkat */}
+                  <div
+                    className={`flex items-center gap-3 px-4 py-2 rounded-lg shadow-sm border text-sm md:text-base ${
+                      isDeviceOnline
+                        ? "border-green-200 bg-green-50 text-green-700"
+                        : "border-red-200 bg-red-50 text-red-700"
+                    }`}
+                  >
+                    {isDeviceOnline ? (
+                      <Wifi className="text-green-500" size={20} />
+                    ) : (
+                      <WifiOff className="text-red-500" size={20} />
+                    )}
+                    <div>
+                      <h4 className="font-semibold">
+                        {isDeviceOnline
+                          ? "Perangkat Online!"
+                          : "Perangkat Offline!"}
+                      </h4>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Kanan: Jam */}
+                <div className="flex items-center w-fit bg-white px-4 py-2 rounded-lg shadow-md border border-gray-100">
+                  <Clock className="mr-2 text-blue-500" />
+                  <span className="text-xl font-medium text-gray-800">{time}</span>
+                </div>
               </div>
-            </div>
+
 
             <div className="lg:grid max-sm:space-y-6 lg:grid-cols-4 gap-4">
               {/* Water Temperature Card */}
@@ -267,79 +334,92 @@ const Page = () => {
               </div>
 
               <div className="bg-white col-span-2 p-4 rounded-xl shadow-md border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-yellow-200">
-                <div className="flex items-center">
-                  <Container className="mr-2 text-blue-500" size={20} />
-                  <span className="font-medium text-gray-800">
-                    Tangki A/B MIX
-                  </span>
-                </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
-                  {/* Ultrasonic Sensor 1 */}
-                  <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-yellow-200">
-                    <div className="p-5">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-medium text-gray-800">
-                          Level Tangki A
-                        </h3>
-                        <Waves className={tank1Status.textColor} size={24} />
-                      </div>
-                      <div
-                        className={`${tank1Status.textColor} text-5xl font-bold mt-4`}
-                      >
-                        {distance1} <span className="text-2xl">CM</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-3 mt-4">
-                        <div
-                          className={`${tank1Status.bgColor} h-3 rounded-full transition-all`}
-                          style={{
-                            width: `${
-                              (distance1 / 40) * 100 > 100
-                                ? 0
-                                : 100 - (distance1 / 40) * 100
-                            }%`,
-                          }}
-                        ></div>
-                      </div>
-                      <p className="text-gray-600 mt-2 text-sm flex items-center">
-                        {tank1Status.icon}
-                        <span className="ml-1">{tank1Status.status}</span>
-                      </p>
+              <div className="flex items-center">
+                <Container className="mr-2 text-blue-500" size={20} />
+                <span className="font-medium text-gray-800">
+                  Tangki Nutrisi
+                </span>
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
+                {/* Tangki A */}
+                <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-yellow-200">
+                  <div className="p-5">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-medium text-gray-800">
+                        Level Tangki A
+                      </h3>
+                      <Waves className={tank1Status.textColor} size={24} />
                     </div>
+                    <div className={`${tank1Status.textColor} text-5xl font-bold mt-4`}>
+                      {Math.min(distance1, threshold)} <span className="text-2xl">CM</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-3 mt-4">
+                      <div
+                        className={`${tank1Status.bgColor} h-3 rounded-full transition-all`}
+                        style={{
+                          width: `${
+                            Math.min((distance1 / threshold) * 100, 100)
+                          }%`,
+                        }}
+                      ></div>
+                    </div>
+                    <p className="text-gray-600 mt-2 text-sm flex items-center">
+                      {tank1Status.icon}
+                      <span className="ml-1">{tank1Status.status}</span>
+                    </p>
                   </div>
-                  {/* Ultrasonic Sensor 2 */}
-                  <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-yellow-200">
-                    <div className="p-5">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-medium text-gray-800">
-                          Level Tangki B
-                        </h3>
-                        <Waves className={tank2Status.textColor} size={24} />
-                      </div>
-                      <div
-                        className={`${tank2Status.textColor} text-5xl font-bold mt-4`}
-                      >
-                        {distance2} <span className="text-2xl">CM</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-3 mt-4">
-                        <div
-                          className={`${tank2Status.bgColor} h-3 rounded-full transition-all`}
-                          style={{
-                            width: `${
-                              (distance2 / 40) * 100 > 100
-                                ? 0
-                                : 100 - (distance2 / 40) * 100
-                            }%`,
-                          }}
-                        ></div>
-                      </div>
-                      <p className="text-gray-600 mt-2 text-sm flex items-center">
-                        {tank2Status.icon}
-                        <span className="ml-1">{tank2Status.status}</span>
-                      </p>
+                </div>
+
+                {/* Tangki B */}
+                <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-yellow-200">
+                  <div className="p-5">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-medium text-gray-800">
+                        Level Tangki B
+                      </h3>
+                      <Waves className={tank2Status.textColor} size={24} />
                     </div>
+                    <div className={`${tank2Status.textColor} text-5xl font-bold mt-4`}>
+                      {Math.min(distance2, threshold)} <span className="text-2xl">CM</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-3 mt-4">
+                      <div
+                        className={`${tank2Status.bgColor} h-3 rounded-full transition-all`}
+                        style={{
+                          width: `${
+                            Math.min((distance2 / threshold) * 100, 100)
+                          }%`,
+                        }}
+                      ></div>
+                    </div>
+                    <p className="text-gray-600 mt-2 text-sm flex items-center">
+                      {tank2Status.icon}
+                      <span className="ml-1">{tank2Status.status}</span>
+                    </p>
                   </div>
                 </div>
               </div>
+              <div className="mt-6 p-4 bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-yellow-200">
+                  <h4 className="text-lg font-semibold mb-2 text-gray-800">Ketinggian Nutrisi</h4>
+                  <div className="flex items-center space-x-3">
+                    <input
+                      type="number"
+                      ref={inputRef}
+                      defaultValue={threshold}
+                      className="w-32 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-yellow-300"
+                      placeholder="Masukkan nilai"
+                    />
+                    <button
+                      onClick={handleThresholdSave}
+                      className="bg-yellow-400 hover:bg-yellow-500 text-white px-4 py-2 rounded-md shadow-md"
+                    >
+                      Simpan
+                    </button>
+                  </div>
+                  <p className="text-sm text-gray-500 mt-2">Nilai ini akan digunakan oleh perangkat untuk menetapkan ketinggian maksimal tangki nutrisi.</p>
+                </div>
+            </div>
+
 
               {/* Restart Button Card */}
               <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-red-200">
