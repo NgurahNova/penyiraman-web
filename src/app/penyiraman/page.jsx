@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { database, ref, onValue } from "@/components/firebase";
+import { database, ref, onValue,set } from "@/components/firebase";
 import ControlButtonRestart from "@/components/buttonRestart";
 import ControlButton from "@/components/buttonTrigger";
 import Footer from "@/components/footer";
@@ -34,6 +34,8 @@ const Page = () => {
   const [time, setTime] = useState(new Date().toLocaleTimeString());
   const [searchTodayHistory, setSearchTodayHistory] = useState("");
   const [searchPrevHistory, setSearchPrevHistory] = useState("");
+  const [deviceStatus, setDeviceStatus] = useState("offline");
+
 
   const [currentDate, setCurrentDate] = useState(
     new Date().toISOString().split("T")[0]
@@ -57,22 +59,24 @@ const Page = () => {
     return () => clearInterval(interval);
   }, [currentDate]);
 
-  // Ganti getTodayDate dengan fungsi yang menggunakan state
-  const getTodayDate = () => {
-    return currentDate;
-  };
 
-  useEffect(() => {
-    const dataRef = ref(database, "realtime_data");
-    const unsubscribe = onValue(dataRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        setTemperature(data.temperature);
-        setSoilMoisture(data.soil_moisture);
-      }
-    });
-    return () => unsubscribe();
-  }, []);
+
+useEffect(() => {
+  const dataRef = ref(database, "realtime_data");
+  const unsubscribe = onValue(dataRef, (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      setTemperature(data.temperature);
+      setSoilMoisture(data.soil_moisture);
+
+      // 🟢 Tambahkan status perangkat ke Firebase
+      const currentTime = new Date().toISOString();
+      set(ref(database, "realtime_data/device_status"), "online");
+      set(ref(database, "realtime_data/last_seen"), currentTime);
+    }
+  });
+  return () => unsubscribe();
+}, []);
 
   useEffect(() => {
     const historyRef = ref(database, "history_data");
@@ -233,10 +237,17 @@ const Page = () => {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
               <h1 className="text-3xl font-bold text-gray-800">Penyiraman</h1>
-              <div className="flex md:items-center w-fit mt-4 md:mt-0 bg-white px-4 py-2 rounded-lg shadow-md border border-gray-100">
+              <div className="flex md:items-end w-fit mt-4 md:mt-0 bg-white px-4 py-2 rounded-lg shadow-md border border-gray-100">
                 <Clock className="mr-2 text-blue-500" />
-                <span className="text-xl font-medium text-gray-700">
-                  {time}
+                <span className="text-xl font-medium text-gray-700 mr-4">{time}</span>
+                <span
+                  className={`text-sm font-medium px-3 py-1 rounded-md ${
+                    deviceStatus === "online"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-red-100 text-red-700"
+                  }`}
+                >
+                  {deviceStatus === "online" ? "Device Online" : "Device Offline"}
                 </span>
               </div>
             </div>
