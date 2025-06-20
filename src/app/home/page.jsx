@@ -39,8 +39,7 @@ const Page = () => {
   const [temperaturetds, setTemperatureTds] = useState(0);
   const [threshold, setThreshold] = useState("");
   const inputRef = useRef(null);
-  const tank1Status = getTankLevelStatus(distance1);
-  const tank2Status = getTankLevelStatus(distance2);
+
 
   useEffect(() => {
     const dataRef = ref(database, "realtime_data");
@@ -127,6 +126,9 @@ const Page = () => {
         };
       }
     };
+
+      const tank1Status = getTankLevelStatus(distance1);
+      const tank2Status = getTankLevelStatus(distance2);
 
   // Function to determine moisture level color
   const getMoistureColor = (value) => {
