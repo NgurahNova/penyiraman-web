@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
-import { database, ref, onValue } from "@/components/firebase";
+import { database, ref, onValue, set } from "@/components/firebase";
 import { update } from "firebase/database";
 import Footer from "@/components/footer";
 import Navbar from "@/components/navbar";
@@ -46,14 +46,35 @@ const Page = () => {
   const [time, setTime] = useState(new Date().toLocaleTimeString());
   const [threshold, setThreshold] = useState("");
   const inputRef = useRef(null);
-  const [lastUpdateTime, setLastUpdateTime] = useState(Date.now());
-  const [isDeviceOnline, setIsDeviceOnline] = useState(true);
+  const [deviceStatus, setDeviceStatus] = useState("offline");
 
   // Get today's date in YYYY-MM-DD format
   const getTodayDate = () => {
     const today = new Date();
     return today.toISOString().split("T")[0];
   };
+
+   const [currentDate, setCurrentDate] = useState(
+      new Date().toISOString().split("T")[0]
+    );
+
+  useEffect(() => {
+      const updateDate = () => {
+        const newDate = new Date().toISOString().split("T")[0];
+        if (newDate !== currentDate) {
+          setCurrentDate(newDate);
+        }
+      };
+  
+      // Periksa tanggal setiap menit
+      const interval = setInterval(updateDate, 60000);
+  
+      // Jalankan sekali saat komponen dimuat untuk menangkap perubahan tanggal
+      updateDate();
+  
+      // Bersihkan interval saat komponen dilepas
+      return () => clearInterval(interval);
+    }, [currentDate]);
 
   useEffect(() => {
     const dataRef = ref(database, "MonitoringNutrisi/realtime");
@@ -66,25 +87,15 @@ const Page = () => {
         setRelayB(data.relayB);
         setTdsValue(data.tdsValue);
         setTemperatureTds(data.temperaturetds);
-        setLastUpdateTime(Date.now());
-        setIsDeviceOnline(true);
+        const currentTime = new Date().toISOString();
+              set(ref(database, "MonitoringNutrisi/realtime/device_status"), "online");
+              set(ref(database, "MonitoringNutrisi/realtime/last_seen"), currentTime);
       }
     });
 
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-  const interval = setInterval(() => {
-    const now = Date.now();
-    if (now - lastUpdateTime > 60000) {
-      setIsDeviceOnline(false);
-    } else {
-      setIsDeviceOnline(true);
-    }
-  }, 10000);
-  return () => clearInterval(interval);
-}, [lastUpdateTime]);
 
   // Fetch historical data from Firebase
   useEffect(() => {
@@ -114,9 +125,6 @@ const handleThresholdSave = () => {
     update(thresholdRef, { threshold: newValue });
   }
 };
-
-  const levelA = Math.min(distance1, threshold);
-  const levelB = Math.min(distance2, threshold);
 
   const getTankLevelStatus = (distance) => {
     const level = Math.min(distance, threshold);
@@ -239,33 +247,21 @@ const handleThresholdSave = () => {
                     <Sprout className="mr-2 text-green-500" size={28} />
                     Nutrisi
                   </h1>
-                  {/* Notifikasi Status Perangkat */}
-                  <div
-                    className={`flex items-center gap-3 px-4 py-2 rounded-lg shadow-sm border text-sm md:text-base ${
-                      isDeviceOnline
-                        ? "border-green-200 bg-green-50 text-green-700"
-                        : "border-red-200 bg-red-50 text-red-700"
-                    }`}
-                  >
-                    {isDeviceOnline ? (
-                      <Wifi className="text-green-500" size={20} />
-                    ) : (
-                      <WifiOff className="text-red-500" size={20} />
-                    )}
-                    <div>
-                      <h4 className="font-semibold">
-                        {isDeviceOnline
-                          ? "Perangkat Online!"
-                          : "Perangkat Offline!"}
-                      </h4>
-                    </div>
-                  </div>
                 </div>
 
                 {/* Kanan: Jam */}
-                <div className="flex items-center w-fit bg-white px-4 py-2 rounded-lg shadow-md border border-gray-100">
+                <div className="flex md:items-end w-fit mt-4 md:mt-0 bg-white px-4 py-2 rounded-lg shadow-md border border-gray-100">
                   <Clock className="mr-2 text-blue-500" />
-                  <span className="text-xl font-medium text-gray-800">{time}</span>
+                  <span className="text-xl font-medium text-gray-700 mr-4">{time}</span>
+                  <span
+                    className={`text-sm font-medium px-3 py-1 rounded-md ${
+                      deviceStatus === "online"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
+                    }`}
+                  >
+                    {deviceStatus === "online" ? "Device Online" : "Device Offline"}
+                  </span>
                 </div>
               </div>
 
