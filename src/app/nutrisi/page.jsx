@@ -286,7 +286,6 @@ const handleThresholdSave = () => {
                 {/* Kiri: Judul dan Status */}
                 <div className="flex flex-col md:flex-row md:items-center gap-4">
                   <h1 className="text-3xl font-bold flex items-center">
-                    <Sprout className="mr-2 text-green-500" size={28} />
                     Nutrisi
                   </h1>
                 </div>

@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { database, ref, onValue,set } from "@/components/firebase";
+import { database, ref, onValue, set } from "@/components/firebase";
 import ControlButtonRestart from "@/components/buttonRestart";
 import ControlButton from "@/components/buttonTrigger";
 import Footer from "@/components/footer";
@@ -35,12 +35,13 @@ const Page = () => {
   const [searchTodayHistory, setSearchTodayHistory] = useState("");
   const [searchPrevHistory, setSearchPrevHistory] = useState("");
   const [deviceStatus, setDeviceStatus] = useState("offline");
-
+  const [lastSeen, setLastSeen] = useState(null);
 
   const [currentDate, setCurrentDate] = useState(
     new Date().toISOString().split("T")[0]
   );
 
+  // Update date checker
   useEffect(() => {
     const updateDate = () => {
       const newDate = new Date().toISOString().split("T")[0];
@@ -49,35 +50,89 @@ const Page = () => {
       }
     };
 
-    // Periksa tanggal setiap menit
     const interval = setInterval(updateDate, 60000);
-
-    // Jalankan sekali saat komponen dimuat untuk menangkap perubahan tanggal
     updateDate();
 
-    // Bersihkan interval saat komponen dilepas
     return () => clearInterval(interval);
   }, [currentDate]);
 
+  // Main realtime data listener
+  useEffect(() => {
+    const dataRef = ref(database, "realtime_data");
+    const unsubscribe = onValue(dataRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        // Update sensor data
+        setTemperature(data.temperature || 0);
+        setSoilMoisture(data.soil_moisture || {
+          sensor_1: 0,
+          sensor_2: 0,
+          sensor_3: 0,
+          sensor_4: 0,
+          sensor_5: 0,
+        });
 
+        // Update last seen time whenever we receive data
+        const currentTime = new Date().toISOString();
+        setLastSeen(currentTime);
+        
+        // Update last_seen in Firebase
+        set(ref(database, "realtime_data/last_seen"), currentTime);
+        
+        // Device is online when we receive fresh data
+        setDeviceStatus("online");
+      }
+    });
+    
+    return () => unsubscribe();
+  }, []);
 
-useEffect(() => {
-  const dataRef = ref(database, "realtime_data");
-  const unsubscribe = onValue(dataRef, (snapshot) => {
-    const data = snapshot.val();
-    if (data) {
-      setTemperature(data.temperature);
-      setSoilMoisture(data.soil_moisture);
+  // Listen for last_seen changes from Firebase
+  useEffect(() => {
+    const lastSeenRef = ref(database, "realtime_data/last_seen");
+    
+    const unsubscribeLastSeen = onValue(lastSeenRef, (snapshot) => {
+      const lastSeenTime = snapshot.val();
+      if (lastSeenTime) {
+        setLastSeen(lastSeenTime);
+      }
+    });
 
-      // 🟢 Tambahkan status perangkat ke Firebase
-      const currentTime = new Date().toISOString();
-      set(ref(database, "realtime_data/device_status"), "online");
-      set(ref(database, "realtime_data/last_seen"), currentTime);
-    }
-  });
-  return () => unsubscribe();
-}, []);
+    return () => {
+      unsubscribeLastSeen();
+    };
+  }, []);
 
+  // Device status monitoring based on last_seen (10 seconds timeout)
+  useEffect(() => {
+    const checkDeviceStatus = () => {
+      if (lastSeen) {
+        const lastSeenTime = new Date(lastSeen);
+        const currentTime = new Date();
+        const timeDifference = currentTime - lastSeenTime;
+        
+        // If more than 10 seconds without update, consider offline
+        if (timeDifference > 10000) { // 10 seconds = 10000 ms
+          setDeviceStatus("offline");
+        } else {
+          setDeviceStatus("online");
+        }
+      } else {
+        // If no last_seen data, device is offline
+        setDeviceStatus("offline");
+      }
+    };
+
+    // Check every 2 seconds for more responsive status updates
+    const statusInterval = setInterval(checkDeviceStatus, 2000);
+    
+    // Run once immediately
+    checkDeviceStatus();
+    
+    return () => clearInterval(statusInterval);
+  }, [lastSeen]);
+
+  // History data listener
   useEffect(() => {
     const historyRef = ref(database, "history_data");
     const unsubscribe = onValue(historyRef, (snapshot) => {
@@ -89,6 +144,7 @@ useEffect(() => {
     return () => unsubscribe();
   }, []);
 
+  // Time updater
   useEffect(() => {
     const interval = setInterval(() => {
       setTime(new Date().toLocaleTimeString());
@@ -142,6 +198,37 @@ useEffect(() => {
     if (value > 30) return "text-red-500";
     if (value < 18) return "text-blue-500";
     return "text-green-500";
+  };
+
+  // Function to get device status display
+  const getDeviceStatusDisplay = () => {
+    if (deviceStatus === "online") {
+      return {
+        text: "Device Online",
+        className: "bg-green-100 text-green-700",
+        
+      };
+    } else {
+      return {
+        text: "Device Offline",
+        className: "bg-red-100 text-red-700",
+        
+      };
+    }
+  };
+
+  // Function to format last seen time
+  const formatLastSeen = (timestamp) => {
+    if (!timestamp) return "Never";
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diff = now - date;
+    
+    if (diff < 10000) return "Just now"; // Less than 10 seconds
+    if (diff < 60000) return `${Math.floor(diff / 1000)} seconds ago`;
+    if (diff < 3600000) return `${Math.floor(diff / 60000)} minutes ago`;
+    if (diff < 86400000) return `${Math.floor(diff / 3600000)} hours ago`;
+    return date.toLocaleDateString();
   };
 
   // Function to render time entry data
@@ -224,6 +311,8 @@ useEffect(() => {
     );
   };
 
+  const statusDisplay = getDeviceStatusDisplay();
+
   return (
     <div className="bg-white">
       <ProtectedRoute>
@@ -237,18 +326,25 @@ useEffect(() => {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
               <h1 className="text-3xl font-bold text-gray-800">Penyiraman</h1>
-              <div className="flex md:items-end w-fit mt-4 md:mt-0 bg-white px-4 py-2 rounded-lg shadow-md border border-gray-100">
-                <Clock className="mr-2 text-blue-500" />
-                <span className="text-xl font-medium text-gray-700 mr-4">{time}</span>
-                <span
-                  className={`text-sm font-medium px-3 py-1 rounded-md ${
-                    deviceStatus === "online"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-red-100 text-red-700"
-                  }`}
-                >
-                  {deviceStatus === "online" ? "Device Online" : "Device Offline"}
-                </span>
+              <div className="flex flex-col md:flex-row md:items-center w-fit mt-4 md:mt-0 bg-white px-4 py-3 rounded-lg shadow-md border border-gray-100 space-y-2 md:space-y-0 md:space-x-4">
+                <div className="flex items-center ">
+                  <Clock className="mr-2 text-blue-500" />
+                  <span className="text-xl font-medium text-gray-700 ">{time}</span>
+                </div>
+                <div className="flex flex-col items-center md:items-center">
+                  <span
+                    className={`text-sm font-medium px-3 py-1 rounded-md flex items-center ${statusDisplay.className}`}
+                  >
+                    <span className="mr-1">{statusDisplay.icon}</span>
+                    {statusDisplay.text}
+                  </span>
+                  {deviceStatus === "offline" && lastSeen && (
+                    <span className="text-xs text-gray-500 mt-1">
+                      Last seen: {formatLastSeen(lastSeen)}
+                    </span>
+                  )}
+
+                </div>
               </div>
             </div>
 
