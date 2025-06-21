@@ -1,11 +1,10 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
-import { database, ref, onValue, set } from "@/components/firebase";
+import { database, ref, onValue } from "@/components/firebase";
 import { update } from "firebase/database";
 import Footer from "@/components/footer";
 import Navbar from "@/components/navbar";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { Wifi, WifiOff } from "lucide-react";
 import {
   Sprout,
   Thermometer,
@@ -46,7 +45,10 @@ const Page = () => {
   const [time, setTime] = useState(new Date().toLocaleTimeString());
   const [threshold, setThreshold] = useState("");
   const inputRef = useRef(null);
-  const [deviceStatus, setDeviceStatus] = useState("offline");
+  const [deviceStatus, setDeviceStatus] = useState({
+    lastSeen: null,
+    status: "Offline",
+  });
 
   // Get today's date in YYYY-MM-DD format
   const getTodayDate = () => {
@@ -87,15 +89,54 @@ const Page = () => {
         setRelayB(data.relayB);
         setTdsValue(data.tdsValue);
         setTemperatureTds(data.temperaturetds);
-        const currentTime = new Date().toISOString();
-              set(ref(database, "MonitoringNutrisi/realtime/device_status"), "online");
-              set(ref(database, "MonitoringNutrisi/realtime/last_seen"), currentTime);
       }
     });
 
     return () => unsubscribe();
   }, []);
 
+  // Ambil last_seen dari Firebase
+  useEffect(() => {
+    const lastSeenRef = ref(database, "MonitoringNutrisi/realtime/last_seen");
+
+    const unsubscribe = onValue(lastSeenRef, (snapshot) => {
+      const value = snapshot.val();
+      if (value) {
+        setDeviceStatus((prev) => ({
+          ...prev,
+          lastSeen: value,
+        }));
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Evaluasi status Online/Offline setiap 5 detik
+  useEffect(() => {
+    const updateStatus = () => {
+      if (!deviceStatus.lastSeen) return;
+
+      const lastSeen = new Date(deviceStatus.lastSeen); // waktu dari Firebase (UTC)
+      const now = new Date();
+
+      // Konversi waktu sekarang ke UTC+8
+      const nowUTC8 = new Date(now.getTime() + (8 * 60 * 60 * 1000));
+
+      const diffSeconds = (nowUTC8 - lastSeen) / 1000;
+      const isOnline = diffSeconds < 120;
+
+      setDeviceStatus((prev) => ({
+        ...prev,
+        status: isOnline ? "Online" : "Offline",
+      }));
+    };
+
+    updateStatus(); // evaluasi langsung saat mount
+    const interval = setInterval(updateStatus, 5000);
+
+    return () => clearInterval(interval);
+  }, [deviceStatus.lastSeen]);
 
   // Fetch historical data from Firebase
   useEffect(() => {
@@ -117,6 +158,14 @@ const Page = () => {
     }
   });
 }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTime(new Date().toLocaleTimeString());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
 
 const handleThresholdSave = () => {
   const newValue = parseInt(inputRef.current.value);
@@ -170,13 +219,6 @@ const handleThresholdSave = () => {
       ? Object.keys(historyData[date]).sort().reverse()
       : [];
   };
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTime(new Date().toLocaleTimeString());
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
 
   // Function to determine temperature color and icon
   const getTemperatureColorAndIcon = (value) => {
@@ -255,12 +297,12 @@ const handleThresholdSave = () => {
                   <span className="text-xl font-medium text-gray-700 mr-4">{time}</span>
                   <span
                     className={`text-sm font-medium px-3 py-1 rounded-md ${
-                      deviceStatus === "online"
+                      deviceStatus.status === "Online"
                         ? "bg-green-100 text-green-700"
                         : "bg-red-100 text-red-700"
                     }`}
                   >
-                    {deviceStatus === "online" ? "Device Online" : "Device Offline"}
+                    {deviceStatus.status === "Online" ? "Device Online" : "Device Offline"}
                   </span>
                 </div>
               </div>
